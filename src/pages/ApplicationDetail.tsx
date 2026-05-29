@@ -149,7 +149,6 @@ export default function ApplicationDetail() {
           <DownloadGroup
             label="Resume"
             docxPath={app.resumeStoragePath}
-            pdfPath={app.resumePdfPath}
             company={app.companyName}
             role={app.roleTitle}
             onDownload={handleDownload}
@@ -157,7 +156,6 @@ export default function ApplicationDetail() {
           <DownloadGroup
             label="Cover Letter"
             docxPath={app.coverLetterStoragePath}
-            pdfPath={app.coverLetterPdfPath}
             company={app.companyName}
             role={app.roleTitle}
             onDownload={handleDownload}
@@ -186,10 +184,9 @@ export default function ApplicationDetail() {
   );
 }
 
-function DownloadGroup({ label, docxPath, pdfPath, company, role, onDownload }: {
+function DownloadGroup({ label, docxPath, company, role, onDownload }: {
   label: string;
   docxPath: string;
-  pdfPath: string;
   company: string;
   role: string;
   onDownload: (path: string, filename: string) => void;
@@ -199,20 +196,12 @@ function DownloadGroup({ label, docxPath, pdfPath, company, role, onDownload }: 
   return (
     <div className="border border-gray-200 rounded-lg p-4">
       <p className="text-sm font-medium text-gray-800 mb-3">{label}</p>
-      <div className="space-y-2">
-        <button
-          onClick={() => onDownload(pdfPath, `${slug}-${type}.pdf`)}
-          className="w-full text-left text-xs text-indigo-600 hover:text-indigo-800 flex items-center gap-2"
-        >
-          <DownloadIcon /> PDF
-        </button>
-        <button
-          onClick={() => onDownload(docxPath, `${slug}-${type}.docx`)}
-          className="w-full text-left text-xs text-indigo-600 hover:text-indigo-800 flex items-center gap-2"
-        >
-          <DownloadIcon /> DOCX
-        </button>
-      </div>
+      <button
+        onClick={() => onDownload(docxPath, `${slug}-${type}.docx`)}
+        className="w-full text-left text-xs text-indigo-600 hover:text-indigo-800 flex items-center gap-2"
+      >
+        <DownloadIcon /> Download DOCX
+      </button>
     </div>
   );
 }
