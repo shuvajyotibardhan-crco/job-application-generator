@@ -375,7 +375,7 @@ All secrets stored in `.env` (gitignored). See `.env.example` for variable names
 │
 ├── src/
 │   ├── main.tsx                      # React entry point
-│   ├── App.tsx                       # Router and auth guard
+│   ├── App.tsx                       # Router, auth guard, and ProfileGuard (redirects to /profile if profile incomplete)
 │   ├── components/
 │   │   ├── Layout.tsx                # Shell with nav and copyright footer
 │   │   ├── StatusBadge.tsx           # Status chip (Submitted / In Progress / Completed)

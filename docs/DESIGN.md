@@ -13,6 +13,9 @@ The system is a single-page React application backed entirely by Firebase. All s
 
 ## Module Design
 
+### `src/App.tsx`
+Top-level router and auth state manager. Listens to Firebase `onAuthStateChanged` and either shows `<SignIn>` or the authenticated `<Layout>` shell. Exports a `ProfileGuard` component used on `/dashboard` and `/new-application` routes: on each render it fetches the user's profile from Firestore and redirects to `/profile` if `isProfileComplete()` returns false, ensuring first-time users fill in their details before creating applications.
+
 ### `src/pages/SignIn.tsx`
 Renders the authentication screen. Handles Google OAuth popup and email/password sign-in/create-account flows via Firebase Auth SDK. No business logic — delegates to `src/services/auth.ts`.
 
