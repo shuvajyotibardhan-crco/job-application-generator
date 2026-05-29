@@ -441,6 +441,7 @@ All secrets stored in `.env` (gitignored). See `.env.example` for variable names
 | File upload (PDF/DOCX) | All modern browsers |
 | File download (PDF/DOCX) | All modern browsers |
 | CSS (Tailwind) | Chrome 80+, Firefox 75+, Safari 13.1+, Edge 80+ |
+| Responsive layout | 375px (mobile), 768px (tablet), 1280px (desktop); dashboard table scrollable on small screens; nav abbreviated on mobile |
 
 ---
 
