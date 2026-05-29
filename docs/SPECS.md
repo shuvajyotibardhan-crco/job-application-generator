@@ -365,7 +365,7 @@ All secrets stored in `.env` (gitignored). See `.env.example` for variable names
 ├── CLAUDE.md                         # Project context and rules reference
 ├── README.md                         # Setup and overview
 ├── progress.md                       # Session state tracker
-├── .gitignore
+├── .gitignore                        # Excludes: node_modules/, dist/, .env, .DS_Store, functions/.env, functions/lib/, *-firebase-adminsdk-*.json, firebase-debug.log, .firebase/
 ├── .env.example                      # Secret variable names (no values)
 ├── package.json                      # Frontend dependencies
 ├── vite.config.ts
@@ -406,7 +406,8 @@ All secrets stored in `.env` (gitignored). See `.env.example` for variable names
 │           ├── claudeClient.ts       # Anthropic SDK wrapper with prompt caching
 │           ├── searchClient.ts       # Google Custom Search wrapper
 │           ├── docRenderer.ts        # DOCX generation via docx package
-│           └── pdfConverter.ts       # DOCX → PDF conversion
+│           ├── pdfConverter.ts       # DOCX → PDF conversion
+│           └── utils.ts              # normaliseSlug, isCacheStale, selectUrls helpers
 │
 ├── firestore.rules
 ├── storage.rules
@@ -419,6 +420,7 @@ All secrets stored in `.env` (gitignored). See `.env.example` for variable names
 │   ├── DESIGN.md
 │   ├── SPECS.md                      # this file
 │   ├── TASKS.md
+│   ├── MANUAL_STEPS.md           # Step-by-step guide for every manual console action
 │   ├── architecture.drawio
 │   └── architecture.png
 │
