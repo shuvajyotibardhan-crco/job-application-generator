@@ -56,6 +56,9 @@ Main generation pipeline:
 6. Renders final documents as formatted DOCX (using `docx` npm package) and converts to PDF.
 7. Uploads both formats to Firebase Storage; writes application record to Firestore.
 
+### `functions/src/downloadFile.ts` (Cloud Function — callable)
+Returns the raw bytes of a generated application file as a base64 string. The client calls this instead of fetching the Firebase Storage download URL directly, because direct browser `fetch()` calls to Storage are blocked by CORS (the bucket has no CORS configuration). The function verifies the requesting user owns the path (`storagePath` must start with `users/{uid}/`) before streaming the file.
+
 ### `functions/src/deleteApplication.ts` (Cloud Function — callable)
 Deletes the Firestore application record and both Storage files (resume + cover letter) for the owning user. Logs Storage errors but always deletes the Firestore record.
 

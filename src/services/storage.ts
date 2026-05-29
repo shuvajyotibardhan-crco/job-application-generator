@@ -1,5 +1,6 @@
 import { ref, uploadBytes, getDownloadURL, getBlob, deleteObject } from 'firebase/storage';
-import { storage, auth } from '../firebase';
+import { httpsCallable } from 'firebase/functions';
+import { storage, auth, functions } from '../firebase';
 
 export const uploadBaseResume = async (file: File): Promise<string> => {
   const uid = auth.currentUser?.uid;
@@ -15,6 +16,13 @@ export const getDownloadUrl = (path: string) =>
 
 export const getFileBlob = (path: string) =>
   getBlob(ref(storage, path));
+
+export async function getFileBlobViaFunction(storagePath: string, mime: string): Promise<Blob> {
+  const fn = httpsCallable<{ storagePath: string }, { data: string }>(functions, 'downloadFile');
+  const result = await fn({ storagePath });
+  const bytes = Uint8Array.from(atob(result.data.data), c => c.charCodeAt(0));
+  return new Blob([bytes], { type: mime });
+}
 
 export const deleteFile = (path: string) =>
   deleteObject(ref(storage, path));

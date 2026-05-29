@@ -295,6 +295,32 @@ Deletes an application record and all associated files.
 
 ---
 
+### `downloadFile`
+
+Returns the raw bytes of a generated application file, routed through a Cloud Function to avoid browser CORS restrictions on Firebase Storage.
+
+**Request:**
+```typescript
+{ storagePath: string }   // e.g. "users/{uid}/applications/{appId}/resume.pdf"
+```
+
+**Response:**
+```typescript
+{ data: string }          // Base64-encoded file bytes
+```
+
+**Logic:**
+```
+1. Verify request.auth.uid.
+2. Verify storagePath starts with "users/{uid}/" — reject otherwise (permission-denied).
+3. Download file buffer from Cloud Storage.
+4. Return { data: buffer.toString('base64') }.
+```
+
+**Client usage:** Decoded bytes are wrapped in a `Blob` and written via the File System Access API (`showSaveFilePicker`) or an anchor-click fallback.
+
+---
+
 ## Algorithms
 
 ### Company Slug Normalisation
@@ -407,6 +433,7 @@ All secrets stored in `.env` (gitignored). See `.env.example` for variable names
 │       ├── generateApplication.ts
 │       ├── resolveCompany.ts
 │       ├── deleteApplication.ts
+│       ├── downloadFile.ts           # Proxies Storage file bytes to client (avoids CORS)
 │       └── lib/
 │           ├── claudeClient.ts       # Anthropic SDK wrapper with prompt caching
 │           ├── searchClient.ts       # Google Custom Search wrapper

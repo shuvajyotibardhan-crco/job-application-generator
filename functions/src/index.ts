@@ -5,3 +5,4 @@ admin.initializeApp();
 export { resolveCompany }    from './resolveCompany';
 export { generateApplication } from './generateApplication';
 export { deleteApplication } from './deleteApplication';
+export { downloadFile }      from './downloadFile';

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getApplication, updateStatus, deleteApplicationCall, Application, nextStatus } from '../services/applications';
-import { getFileBlob } from '../services/storage';
+import { getFileBlobViaFunction, getDownloadUrl } from '../services/storage';
 import StatusBadge from '../components/StatusBadge';
 import ConfirmDialog from '../components/ConfirmDialog';
 
@@ -51,7 +51,6 @@ export default function ApplicationDetail() {
 
   const handleDownload = async (storagePath: string, filename: string) => {
     try {
-      const blob = await getFileBlob(storagePath);
       const ext = filename.split('.').pop()!.toLowerCase();
       const mimeMap: Record<string, string> = {
         pdf:  'application/pdf',
@@ -66,15 +65,15 @@ export default function ApplicationDetail() {
           suggestedName: filename,
           types: [{ description: ext.toUpperCase() + ' file', accept: { [mime]: ['.' + ext] } }],
         });
+        const blob = await getFileBlobViaFunction(storagePath, mime);
         const writable = await fileHandle.createWritable();
         await writable.write(blob);
         await writable.close();
       } else {
-        // Fallback: anchor click (Firefox / Safari)
-        const objectUrl = URL.createObjectURL(blob);
+        // Fallback: anchor click (Firefox / Safari) — navigation is not CORS-restricted
+        const url = await getDownloadUrl(storagePath);
         const a = document.createElement('a');
-        a.href = objectUrl; a.download = filename; a.click();
-        URL.revokeObjectURL(objectUrl);
+        a.href = url; a.download = filename; a.click();
       }
     } catch (e) {
       if (e instanceof Error && e.name === 'AbortError') return; // user cancelled picker
