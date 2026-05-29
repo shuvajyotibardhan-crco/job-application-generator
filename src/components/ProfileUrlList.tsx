@@ -49,6 +49,7 @@ export default function ProfileUrlList({ urls, onChange }: Props) {
           className="border border-gray-300 rounded px-2 py-1.5 text-sm flex-1"
         />
         <button
+          type="button"
           onClick={add}
           className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 shrink-0"
         >
