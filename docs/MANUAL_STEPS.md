@@ -88,10 +88,15 @@ Add each secret:
 ## STEP 7 — Firebase App Check
 **When:** During T20 (near end of project) | **Where:** Firebase Console → Build → App Check
 
-1. Click **Get started** → select your web app
-2. Provider: **reCAPTCHA v3**
-3. Register your site at [google.com/recaptcha](https://www.google.com/recaptcha) → copy the site key back into App Check → Save
-4. Click **Enforce** next to Cloud Functions
+1. Register your site for reCAPTCHA v3 at [google.com/recaptcha/admin](https://www.google.com/recaptcha/admin):
+   - Choose **reCAPTCHA v3** → add your domain (e.g. `job-application-generato-f6d20.web.app`) → Submit
+   - Copy the **Site key**
+2. Firebase Console → Build → App Check → **Get started** → select your web app → Provider: **reCAPTCHA v3** → paste site key → Save
+3. Click **Enforce** next to **Cloud Functions** (and optionally Firestore/Storage)
+4. Add the site key as a GitHub Actions secret:
+   - GitHub → Settings → Secrets and variables → Actions → **New repository secret**
+   - Name: `VITE_FIREBASE_APP_CHECK_KEY` → paste the reCAPTCHA v3 site key
+5. For local development: when you first run the app with `DEV=true`, the browser console will print a debug token. Add it in Firebase Console → App Check → **Manage debug tokens** → Add token.
 
 ---
 

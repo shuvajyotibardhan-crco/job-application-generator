@@ -353,6 +353,7 @@ All secrets stored in `.env` (gitignored). See `.env.example` for variable names
 | `VITE_FIREBASE_STORAGE_BUCKET` | Frontend | e.g. `project.appspot.com` |
 | `VITE_FIREBASE_MESSAGING_SENDER_ID` | Frontend | Firebase messaging sender ID |
 | `VITE_FIREBASE_APP_ID` | Frontend | Firebase app ID |
+| `VITE_FIREBASE_APP_CHECK_KEY` | Frontend | reCAPTCHA v3 site key for Firebase App Check — omit in local dev (debug token used instead) |
 | `ANTHROPIC_API_KEY` | Cloud Functions | Anthropic API key — never in frontend |
 | `GOOGLE_SEARCH_API_KEY` | Cloud Functions | Google Custom Search API key |
 | `GOOGLE_SEARCH_ENGINE_ID` | Cloud Functions | Programmable Search Engine ID |

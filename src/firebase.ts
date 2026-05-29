@@ -3,6 +3,7 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getFunctions } from 'firebase/functions';
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 
 const firebaseConfig = {
   apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
@@ -15,7 +16,21 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-export const auth     = getAuth(app);
-export const db       = getFirestore(app);
-export const storage  = getStorage(app);
+// Enable App Check debug token in development so local testing works.
+// Add the printed debug token to Firebase Console → App Check → debug tokens.
+if (import.meta.env.DEV) {
+  // @ts-expect-error — global debug token flag for App Check
+  self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+}
+
+if (import.meta.env.VITE_FIREBASE_APP_CHECK_KEY) {
+  initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider(import.meta.env.VITE_FIREBASE_APP_CHECK_KEY),
+    isTokenAutoRefreshEnabled: true,
+  });
+}
+
+export const auth      = getAuth(app);
+export const db        = getFirestore(app);
+export const storage   = getStorage(app);
 export const functions = getFunctions(app);
