@@ -21,14 +21,41 @@ export interface GenerateDocsInput {
   generationDate: string;
 }
 
-// Full prompt and parsing implemented in T13
 // TODO T13: re-add prompt caching via client.beta.promptCaching.messages.create()
-export const generateDocuments = async (input: GenerateDocsInput) => {
+export const generateDocuments = async (input: GenerateDocsInput): Promise<string> => {
   const response = await client.messages.create({
     model: SONNET,
     max_tokens: 4096,
     system: buildSystemPrompt(),
     messages: [{ role: 'user', content: buildUserPrompt(input) }],
+  });
+  return response.content[0].type === 'text' ? response.content[0].text : '';
+};
+
+export const rewriteFlaggedSections = async (
+  resumeJson: string,
+  coverLetterJson: string,
+  flaggedSections: string[],
+): Promise<string> => {
+  const response = await client.messages.create({
+    model: SONNET,
+    max_tokens: 4096,
+    messages: [{
+      role: 'user',
+      content: `The following sections of a resume and cover letter were flagged as potentially AI-generated. Rewrite them using natural, human, varied language. Avoid clichés, corporate jargon, and any phrasing that sounds automated.
+
+Flagged sections:
+${flaggedSections.join('\n---\n')}
+
+Full resume JSON:
+${resumeJson}
+
+Full cover letter JSON:
+${coverLetterJson}
+
+Return the complete updated JSON in this exact format:
+{"resume":{"sections":[...]},"coverLetter":{"header":{...},"body":"..."}}`,
+    }],
   });
   return response.content[0].type === 'text' ? response.content[0].text : '';
 };
@@ -51,17 +78,70 @@ export const checkAiDetection = async (resumeText: string, coverLetterText: stri
 
 const buildSystemPrompt = (): string =>
   `You are an expert resume writer and career coach. Generate tailored, ATS-optimised resumes and cover letters.
+
 Rules:
 - Maximum 2 pages per document. If a second page is used, it must be at least half full.
 - Do not use words commonly flagged by AI detectors: leverage, utilise, spearhead, deliverables, synergy, cutting-edge, passionate about, dynamic, innovative, robust, comprehensive.
 - Use varied, natural, human-idiomatic language.
 - Tailor all content tightly to the job description keywords and requirements.
-- Output valid JSON only.`;
+- Output valid JSON only — no markdown, no explanation, no preamble.
 
-const buildUserPrompt = (input: GenerateDocsInput): string =>
-  JSON.stringify({ instruction: 'Generate resume and cover letter', ...input });
+Output this exact JSON structure:
+{
+  "resume": {
+    "sections": [
+      {
+        "heading": "string — section title e.g. Professional Summary, Experience, Education, Skills",
+        "items": [
+          {
+            "title": "optional string — job title or degree",
+            "subtitle": "optional string — company or institution",
+            "period": "optional string — e.g. Jan 2020 – Present",
+            "bullets": ["optional array of bullet point strings"],
+            "text": "optional plain text string — for summary or skills sections"
+          }
+        ]
+      }
+    ]
+  },
+  "coverLetter": {
+    "header": {
+      "recipientName": "optional string — e.g. Hiring Manager",
+      "companyName": "string"
+    },
+    "body": "string — full cover letter body text, paragraphs separated by double newlines"
+  }
+}`;
+
+const buildUserPrompt = (input: GenerateDocsInput): string => `Generate a tailored resume and cover letter.
+
+Personal details:
+Name: ${input.personalDetails.fullName}
+Email: ${input.personalDetails.email}
+Phone: ${input.personalDetails.phone}
+Location: ${input.personalDetails.city}, ${input.personalDetails.state}
+URLs: ${input.personalDetails.urls.join(', ') || 'none'}
+Generation date: ${input.generationDate}
+
+Base resume (extract relevant experience — do not copy verbatim):
+${input.baseResumeText}
+
+Job description:
+${input.jobDescription}
+
+Company profile:
+${input.companyProfile}
+
+Role public information:
+${input.roleInfo}`;
 
 const buildDetectionPrompt = (resume: string, coverLetter: string): string =>
-  `Analyse the following resume and cover letter for language patterns commonly flagged by AI-detection tools.
-Return JSON: { "clean": boolean, "flaggedSections": string[] }
-Resume:\n${resume}\n\nCover Letter:\n${coverLetter}`;
+  `Analyse the following resume and cover letter for language patterns commonly flagged by AI-detection tools (e.g. overused corporate phrases, unnatural cadence, repetitive structures).
+Return JSON only: { "clean": boolean, "flaggedSections": string[] }
+Where flaggedSections contains the exact text of flagged phrases or sentences (empty array if clean).
+
+Resume:
+${resume}
+
+Cover Letter:
+${coverLetter}`;
