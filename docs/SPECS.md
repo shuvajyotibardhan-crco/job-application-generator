@@ -44,6 +44,7 @@ interface Application {
   resumePdfPath: string;       // Storage path for generated .pdf
   coverLetterStoragePath: string;
   coverLetterPdfPath: string;
+  aiDetectionWarning: boolean;  // true if still flagged after 3 rewrite passes
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -251,8 +252,8 @@ Runs the full generation pipeline for one job application.
    Cover letter header includes: name, email, phone, city/state, 1–2 URLs, generation date.
    Enforce page layout: assert rendered page count ≤ 2.
 
-7. CONVERT TO PDF
-   Convert each DOCX to PDF (headless LibreOffice via Cloud Function layer, or docx-pdf).
+7. RENDER PDF
+   Re-render the same structured JSON to PDF using pdfmake (pure JS — no system dependencies, no LibreOffice).
 
 8. UPLOAD TO STORAGE
    Upload resume.docx, resume.pdf, cover-letter.docx, cover-letter.pdf
@@ -396,7 +397,7 @@ All secrets stored in `.env` (gitignored). See `.env.example` for variable names
 │       └── applications.ts
 │
 ├── functions/
-│   ├── package.json                  # Functions dependencies (docx, pdf, anthropic, google-search)
+│   ├── package.json                  # Functions dependencies (docx, pdfmake, anthropic, google-search, pdf-parse, mammoth)
 │   ├── .env.example                  # Functions secret variable names
 │   └── src/
 │       ├── index.ts                  # Exports all callable functions
@@ -407,7 +408,7 @@ All secrets stored in `.env` (gitignored). See `.env.example` for variable names
 │           ├── claudeClient.ts       # Anthropic SDK wrapper with prompt caching
 │           ├── searchClient.ts       # Google Custom Search wrapper
 │           ├── docRenderer.ts        # DOCX generation via docx package
-│           ├── pdfConverter.ts       # DOCX → PDF conversion
+│           ├── pdfConverter.ts       # PDF generation via pdfmake (re-renders same structured JSON — no system deps)
 │           └── utils.ts              # normaliseSlug, isCacheStale, selectUrls helpers
 │
 ├── firestore.rules

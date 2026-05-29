@@ -153,7 +153,7 @@ The Anthropic API has no free tier and is the only mandatory per-application cos
 | AI detection check | Claude claude-haiku-4-5 (Anthropic) | 10× cheaper; sufficient for pattern analysis and targeted rewriting |
 | Company research | Google Custom Search API | Retrieves public company and role information reliably |
 | Document formatting | `docx` npm package | Programmatic DOCX generation with precise layout control (fonts, spacing, page breaks) |
-| PDF export | `docx-to-pdf` or headless conversion | PDF derived from DOCX for download compatibility |
+| PDF export | `pdfmake` (pure JS) | Re-renders structured JSON to PDF — no system dependencies, no LibreOffice required in Cloud Functions |
 | Backend | Firebase Cloud Functions (Node.js 20) | Keeps all API keys server-side; auto-scales |
 | CI/CD | GitHub Actions + FirebaseExtended/action-hosting-deploy | No local Firebase CLI dependency |
 
