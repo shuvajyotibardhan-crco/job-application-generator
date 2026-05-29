@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { resolveCompany, generateApplication } from '../services/applications';
 
@@ -19,10 +19,51 @@ export default function NewApplication() {
   const [jd, setJd]                   = useState('');
   const [error, setError]             = useState('');
   const [resolving, setResolving]     = useState(false);
+  const [extracting, setExtracting]   = useState(false);
+  const fileInputRef                  = useRef<HTMLInputElement>(null);
 
   // Disambiguation
   const [options, setOptions]         = useState<CompanyOption[]>([]);
   const [selectedSlug, setSelectedSlug] = useState('');
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    setExtracting(true);
+    setError('');
+    try {
+      let text = '';
+      if (ext === 'txt') {
+        text = await file.text();
+      } else if (ext === 'pdf') {
+        const { getDocument, GlobalWorkerOptions } = await import('pdfjs-dist');
+        GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs`;
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await getDocument({ data: arrayBuffer }).promise;
+        const pages = await Promise.all(
+          Array.from({ length: pdf.numPages }, (_, i) =>
+            pdf.getPage(i + 1).then(p => p.getTextContent()).then(c => c.items.map((item) => 'str' in item ? item.str : '').join(' '))
+          )
+        );
+        text = pages.join('\n\n');
+      } else if (ext === 'docx') {
+        const mammoth = await import('mammoth');
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        text = result.value;
+      } else {
+        setError('Only .txt, .pdf, and .docx files are supported.');
+        return;
+      }
+      setJd(text.trim());
+    } catch {
+      setError('Failed to read file. Please paste the text manually.');
+    } finally {
+      setExtracting(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -154,11 +195,30 @@ export default function NewApplication() {
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-3">
-          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Job Description</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Job Description</h2>
+            <div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".txt,.pdf,.docx"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={extracting}
+                className="flex items-center gap-1.5 text-xs text-indigo-600 border border-indigo-200 rounded-lg px-3 py-1.5 hover:bg-indigo-50 disabled:opacity-50 transition-colors"
+              >
+                {extracting ? <><Spinner /><span>Reading…</span></> : <><UploadIcon />Upload file</>}
+              </button>
+            </div>
+          </div>
           <textarea
             value={jd} onChange={e => setJd(e.target.value)}
             rows={14}
-            placeholder="Paste the full job description here…"
+            placeholder="Paste the full job description here, or upload a .txt / .pdf / .docx file…"
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-y font-mono"
           />
           <p className="text-xs text-gray-400">Include the full JD for the best results — requirements, responsibilities, and any skills listed.</p>
@@ -175,6 +235,14 @@ export default function NewApplication() {
         </button>
       </form>
     </div>
+  );
+}
+
+function UploadIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
+    </svg>
   );
 }
 
