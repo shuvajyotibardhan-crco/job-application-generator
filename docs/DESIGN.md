@@ -26,7 +26,7 @@ First-time setup and ongoing profile management. Handles base resume file upload
 Default authenticated landing page. Reads the user's application list from Firestore (reverse-chron), renders each as a row with status badge, and provides the "New Application" entry point. Empty-state handled inline.
 
 ### `src/pages/NewApplication.tsx`
-Multi-step form: (1) JD input (paste or file upload), (2) company name + role title entry, (3) optional company disambiguation step. On submit, calls the `generateApplication` Cloud Function and shows a progress indicator.
+Multi-step form: (1) JD paste input + company name + role title, (2) optional company disambiguation step, (3) generating spinner while Cloud Function runs. On submit, calls the `generateApplication` Cloud Function and shows a progress indicator.
 
 ### `src/pages/ApplicationDetail.tsx`
 Shows all stored fields for one application. Renders status control (forward-only), download buttons for resume and cover letter, and the Delete Application action with confirmation dialog.
