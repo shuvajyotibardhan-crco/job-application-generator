@@ -13,19 +13,22 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
-        <Link to="/dashboard" className="text-xl font-semibold text-indigo-600">
-          Job Application Generator
+      <nav className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+        <Link to="/dashboard" className="text-base sm:text-xl font-semibold text-indigo-600 shrink-0">
+          <span className="hidden sm:inline">Job Application Generator</span>
+          <span className="sm:hidden">JAG</span>
         </Link>
-        <div className="flex items-center gap-6">
-          <Link to="/profile" className="text-sm text-gray-600 hover:text-indigo-600">
+        <div className="flex items-center gap-3 sm:gap-6 min-w-0">
+          <Link to="/profile" className="text-sm text-gray-600 hover:text-indigo-600 shrink-0">
             Profile
           </Link>
-          <Link to="/new-application" className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-md hover:bg-indigo-700">
-            New Application
+          <Link to="/new-application" className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-md hover:bg-indigo-700 shrink-0 whitespace-nowrap">
+            <span className="hidden sm:inline">New Application</span>
+            <span className="sm:hidden">+ New</span>
           </Link>
-          <button onClick={handleSignOut} className="text-sm text-gray-600 hover:text-red-600">
-            Sign Out
+          <button onClick={handleSignOut} className="text-sm text-gray-600 hover:text-red-600 shrink-0">
+            <span className="hidden sm:inline">Sign Out</span>
+            <span className="sm:hidden">Out</span>
           </button>
         </div>
       </nav>

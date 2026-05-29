@@ -49,37 +49,39 @@ export default function Dashboard() {
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Company</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Role</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Date</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {apps.map(app => (
-                <tr key={app.appId} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3 font-medium text-gray-900">{app.companyName}</td>
-                  <td className="px-4 py-3 text-gray-600">{app.roleTitle}</td>
-                  <td className="px-4 py-3 text-gray-400 whitespace-nowrap">{formatDate(app.generatedAt)}</td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={app.status} />
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={() => navigate(`/application/${app.appId}`)}
-                      className="text-indigo-600 hover:text-indigo-800 text-xs font-medium"
-                    >
-                      View →
-                    </button>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[520px]">
+              <thead>
+                <tr className="border-b border-gray-200 bg-gray-50">
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">Company</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">Role</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600 hidden sm:table-cell">Date</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
+                  <th className="px-4 py-3" />
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {apps.map(app => (
+                  <tr key={app.appId} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-3 font-medium text-gray-900">{app.companyName}</td>
+                    <td className="px-4 py-3 text-gray-600 max-w-[160px] truncate">{app.roleTitle}</td>
+                    <td className="px-4 py-3 text-gray-400 whitespace-nowrap hidden sm:table-cell">{formatDate(app.generatedAt)}</td>
+                    <td className="px-4 py-3">
+                      <StatusBadge status={app.status} />
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        onClick={() => navigate(`/application/${app.appId}`)}
+                        className="text-indigo-600 hover:text-indigo-800 text-xs font-medium whitespace-nowrap"
+                      >
+                        View →
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

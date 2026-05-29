@@ -123,7 +123,7 @@ export default function ApplicationDetail() {
       {/* Downloads */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
         <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Documents</h2>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <DownloadGroup
             label="Resume"
             docxPath={app.resumeStoragePath}

@@ -35,12 +35,12 @@ export default function ProfileUrlList({ urls, onChange }: Props) {
           </button>
         </div>
       ))}
-      <div className="flex gap-2 pt-1">
+      <div className="flex flex-col sm:flex-row gap-2 pt-1">
         <input
           value={label}
           onChange={e => setLabel(e.target.value)}
           placeholder="Label (e.g. LinkedIn)"
-          className="border border-gray-300 rounded px-2 py-1.5 text-sm w-36"
+          className="border border-gray-300 rounded px-2 py-1.5 text-sm sm:w-36"
         />
         <input
           value={url}
