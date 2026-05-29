@@ -95,7 +95,7 @@ As a job seeker, I want to provide a job description, company name, and role tit
 
 ### Acceptance Criteria
 1. The dashboard **shall** include a prominently placed "New Application" button.
-2. The new application form **shall** require: job description (paste), company name, and role title.
+2. The new application form **shall** require: job description (paste or file upload — .txt, .pdf, .docx), company name, and role title.
 3. The job description **shall** be the primary source of data for generation.
 4. The app **shall** use the company name and role title to research public company information and the public description of that role at that company as secondary sources.
 5. If the company name matches multiple distinct companies, the app **shall** present a disambiguation list for the user to select the correct one before proceeding.
