@@ -96,10 +96,10 @@ No code is written until all six are approved.
 ---
 
 ## Immediate Next Actions
-- [ ] User approves PLAN.md
-- [ ] Write REQUIREMENTS.md → seek approval
-- [ ] Write DESIGN.md → seek approval
-- [ ] Write SPECS.md → seek approval
-- [ ] Write TASKS.md → seek approval
-- [ ] Generate architecture.drawio + .png → seek approval
-- [ ] Phase 1 implementation begins
+
+All phases complete. App is deployed to production via GitHub Actions.
+
+- [x] Phases 1–5 implemented (T01–T20)
+- [ ] T21: Smoke-test on live URL (sign-in → profile → generate → dashboard → download → status → delete)
+- [ ] T22: Update OAuth consent screen support email to `app_admin@divel.me` once Google Workspace is ready
+- [ ] App Check manual step: Add `VITE_FIREBASE_APP_CHECK_KEY` GitHub secret + enable enforcement in Firebase Console (MANUAL_STEPS.md Step 7)

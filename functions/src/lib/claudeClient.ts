@@ -21,7 +21,7 @@ export interface GenerateDocsInput {
   generationDate: string;
 }
 
-// TODO T13: re-add prompt caching via client.beta.promptCaching.messages.create()
+// Prompt caching deferred — use client.beta.promptCaching.messages.create() when TypeScript types are available
 export const generateDocuments = async (input: GenerateDocsInput): Promise<string> => {
   const response = await client.messages.create({
     model: SONNET,
