@@ -1,4 +1,4 @@
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, getBlob, deleteObject } from 'firebase/storage';
 import { storage, auth } from '../firebase';
 
 export const uploadBaseResume = async (file: File): Promise<string> => {
@@ -12,6 +12,9 @@ export const uploadBaseResume = async (file: File): Promise<string> => {
 
 export const getDownloadUrl = (path: string) =>
   getDownloadURL(ref(storage, path));
+
+export const getFileBlob = (path: string) =>
+  getBlob(ref(storage, path));
 
 export const deleteFile = (path: string) =>
   deleteObject(ref(storage, path));

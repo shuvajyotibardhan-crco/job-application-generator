@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getApplication, updateStatus, deleteApplicationCall, Application, nextStatus } from '../services/applications';
-import { getDownloadUrl } from '../services/storage';
+import { getFileBlob } from '../services/storage';
 import StatusBadge from '../components/StatusBadge';
 import ConfirmDialog from '../components/ConfirmDialog';
 
@@ -51,7 +51,7 @@ export default function ApplicationDetail() {
 
   const handleDownload = async (storagePath: string, filename: string) => {
     try {
-      const url = await getDownloadUrl(storagePath);
+      const blob = await getFileBlob(storagePath);
       const ext = filename.split('.').pop()!.toLowerCase();
       const mimeMap: Record<string, string> = {
         pdf:  'application/pdf',
@@ -66,15 +66,15 @@ export default function ApplicationDetail() {
           suggestedName: filename,
           types: [{ description: ext.toUpperCase() + ' file', accept: { [mime]: ['.' + ext] } }],
         });
-        const response = await fetch(url);
-        const blob = await response.blob();
         const writable = await fileHandle.createWritable();
         await writable.write(blob);
         await writable.close();
       } else {
         // Fallback: anchor click (Firefox / Safari)
+        const objectUrl = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url; a.download = filename; a.click();
+        a.href = objectUrl; a.download = filename; a.click();
+        URL.revokeObjectURL(objectUrl);
       }
     } catch (e) {
       if (e instanceof Error && e.name === 'AbortError') return; // user cancelled picker
