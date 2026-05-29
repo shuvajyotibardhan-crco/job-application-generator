@@ -22,18 +22,12 @@ export interface GenerateDocsInput {
 }
 
 // Full prompt and parsing implemented in T13
+// TODO T13: re-add prompt caching via client.beta.promptCaching.messages.create()
 export const generateDocuments = async (input: GenerateDocsInput) => {
   const response = await client.messages.create({
     model: SONNET,
     max_tokens: 4096,
-    system: [
-      {
-        type: 'text',
-        text: buildSystemPrompt(),
-        // prompt caching — system prompt reused across calls
-        cache_control: { type: 'ephemeral' },
-      },
-    ],
+    system: buildSystemPrompt(),
     messages: [{ role: 'user', content: buildUserPrompt(input) }],
   });
   return response.content[0].type === 'text' ? response.content[0].text : '';
