@@ -52,9 +52,32 @@ export default function ApplicationDetail() {
   const handleDownload = async (storagePath: string, filename: string) => {
     try {
       const url = await getDownloadUrl(storagePath);
-      const a = document.createElement('a');
-      a.href = url; a.download = filename; a.click();
-    } catch {
+      const ext = filename.split('.').pop()!.toLowerCase();
+      const mimeMap: Record<string, string> = {
+        pdf:  'application/pdf',
+        docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      };
+      const mime = mimeMap[ext] ?? 'application/octet-stream';
+
+      if ('showSaveFilePicker' in window) {
+        const fileHandle = await (window as Window & typeof globalThis & {
+          showSaveFilePicker: (opts: object) => Promise<FileSystemFileHandle>
+        }).showSaveFilePicker({
+          suggestedName: filename,
+          types: [{ description: ext.toUpperCase() + ' file', accept: { [mime]: ['.' + ext] } }],
+        });
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const writable = await fileHandle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+      } else {
+        // Fallback: anchor click (Firefox / Safari)
+        const a = document.createElement('a');
+        a.href = url; a.download = filename; a.click();
+      }
+    } catch (e) {
+      if (e instanceof Error && e.name === 'AbortError') return; // user cancelled picker
       setError('Download failed. Please try again.');
     }
   };
