@@ -1,0 +1,167 @@
+<mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1400" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+
+    <!-- Title -->
+    <mxCell id="title" value="Job Application Generator — Architecture" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="600" y="20" width="900" height="50" as="geometry" />
+    </mxCell>
+
+    <!-- USER BROWSER -->
+    <mxCell id="browser_group" value="User Browser" style="swimlane;startSize=36;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+      <mxGeometry x="40" y="90" width="440" height="660" as="geometry" />
+    </mxCell>
+    <mxCell id="react_app" value="React SPA&#xa;(Vite + TypeScript + Tailwind)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="browser_group">
+      <mxGeometry x="80" y="55" width="280" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="signin_page" value="SignIn Page" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;" vertex="1" parent="browser_group">
+      <mxGeometry x="40" y="170" width="160" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="profile_page" value="Profile Page" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;" vertex="1" parent="browser_group">
+      <mxGeometry x="240" y="170" width="160" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="dashboard_page" value="Dashboard" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;" vertex="1" parent="browser_group">
+      <mxGeometry x="40" y="280" width="160" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="newapp_page" value="New Application" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;" vertex="1" parent="browser_group">
+      <mxGeometry x="240" y="280" width="160" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="detail_page" value="Application Detail" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;" vertex="1" parent="browser_group">
+      <mxGeometry x="140" y="390" width="160" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="copyright" value="© divel.me — All rights reserved&#xa;(footer on every screen)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="browser_group">
+      <mxGeometry x="80" y="560" width="280" height="60" as="geometry" />
+    </mxCell>
+
+    <!-- FIREBASE HOSTING -->
+    <mxCell id="hosting" value="Firebase Hosting&#xa;(serves compiled SPA)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="600" y="90" width="260" height="70" as="geometry" />
+    </mxCell>
+
+    <!-- FIREBASE AUTH -->
+    <mxCell id="firebase_auth" value="Firebase Authentication&#xa;Google OAuth + Email/Password" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="600" y="230" width="260" height="70" as="geometry" />
+    </mxCell>
+
+    <!-- FIRESTORE -->
+    <mxCell id="firestore_group" value="Cloud Firestore" style="swimlane;startSize=36;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="600" y="380" width="260" height="290" as="geometry" />
+    </mxCell>
+    <mxCell id="fs_profile" value="users/{uid}/private/profile&#xa;(UserProfile — private)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="firestore_group">
+      <mxGeometry x="20" y="55" width="220" height="55" as="geometry" />
+    </mxCell>
+    <mxCell id="fs_applications" value="users/{uid}/applications/{id}&#xa;(Application records)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="firestore_group">
+      <mxGeometry x="20" y="130" width="220" height="55" as="geometry" />
+    </mxCell>
+    <mxCell id="fs_cache" value="companyCache/{slug}&#xa;(TTL: 7 days)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="firestore_group">
+      <mxGeometry x="20" y="210" width="220" height="55" as="geometry" />
+    </mxCell>
+
+    <!-- FIREBASE STORAGE -->
+    <mxCell id="storage_group" value="Firebase Storage" style="swimlane;startSize=36;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="600" y="750" width="260" height="190" as="geometry" />
+    </mxCell>
+    <mxCell id="st_resume" value="users/{uid}/resume/base.*&#xa;(Uploaded base resume)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="storage_group">
+      <mxGeometry x="20" y="55" width="220" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="st_generated" value="users/{uid}/applications/{id}/&#xa;resume.docx/.pdf&#xa;cover-letter.docx/.pdf" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="storage_group">
+      <mxGeometry x="20" y="120" width="220" height="55" as="geometry" />
+    </mxCell>
+
+    <!-- CLOUD FUNCTIONS -->
+    <mxCell id="functions_group" value="Firebase Cloud Functions (Node.js 20)" style="swimlane;startSize=36;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="1000" y="200" width="340" height="590" as="geometry" />
+    </mxCell>
+    <mxCell id="fn_resolve" value="resolveCompany()&#xa;Company name → result or disambiguation list" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="functions_group">
+      <mxGeometry x="30" y="55" width="280" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="fn_generate" value="generateApplication()&#xa;10-step pipeline:&#xa;research → generate (Sonnet)&#xa;→ AI-detect check (Haiku) → render → store" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="functions_group">
+      <mxGeometry x="30" y="165" width="280" height="90" as="geometry" />
+    </mxCell>
+    <mxCell id="fn_delete" value="deleteApplication()&#xa;Delete Firestore record + all Storage files" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="functions_group">
+      <mxGeometry x="30" y="315" width="280" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="fn_renderer" value="docRenderer + pdfConverter&#xa;DOCX layout (2-page max, date header)&#xa;→ PDF export" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="functions_group">
+      <mxGeometry x="30" y="435" width="280" height="70" as="geometry" />
+    </mxCell>
+
+    <!-- EXTERNAL APIs -->
+    <mxCell id="claude_sonnet" value="Anthropic — claude-sonnet-4-6&#xa;Resume + Cover Letter generation&#xa;(~$0.048 per application)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="1480" y="220" width="280" height="90" as="geometry" />
+    </mxCell>
+    <mxCell id="claude_haiku" value="Anthropic — claude-haiku-4-5&#xa;AI-detection check + rewrite&#xa;(max 3 passes, ~$0.002 per application)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="1480" y="380" width="280" height="90" as="geometry" />
+    </mxCell>
+    <mxCell id="google_search" value="Google Custom Search API&#xa;Company profile + role research&#xa;(100 free queries/day; cached 7 days)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="1480" y="540" width="280" height="90" as="geometry" />
+    </mxCell>
+
+    <!-- CI/CD -->
+    <mxCell id="github_actions" value="GitHub Actions&#xa;push to main → build → deploy Hosting + Functions + Firestore Rules + Storage Rules" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="1000" y="870" width="340" height="80" as="geometry" />
+    </mxCell>
+
+    <!-- EDGES -->
+    <mxCell id="e1" value="serves SPA" style="edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" source="react_app" target="hosting" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e2" value="sign-in / sign-out" style="edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" source="signin_page" target="firebase_auth" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e3" value="read / write profile" style="edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" source="profile_page" target="fs_profile" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e6" value="upload base resume" style="edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" source="profile_page" target="st_resume" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e4" value="read applications" style="edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" source="dashboard_page" target="fs_applications" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e5" value="status update" style="edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" source="detail_page" target="fs_applications" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e7" value="download resume / cover letter" style="edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" source="detail_page" target="st_generated" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e10" value="deleteApplication()" style="edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" source="detail_page" target="fn_delete" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e8" value="resolveCompany()" style="edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" source="newapp_page" target="fn_resolve" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e9" value="generateApplication()" style="edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" source="newapp_page" target="fn_generate" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e11" value="generate resume + cover letter" style="edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" source="fn_generate" target="claude_sonnet" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e12" value="AI-detection check + rewrite" style="edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" source="fn_generate" target="claude_haiku" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e13" value="company + role research" style="edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" source="fn_resolve" target="google_search" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e14" value="research (on cache miss)" style="edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" source="fn_generate" target="google_search" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e15" value="cache read / write (7-day TTL)" style="edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" source="fn_resolve" target="fs_cache" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e16" value="write application record" style="edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" source="fn_generate" target="fs_applications" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e17" value="upload generated docs (DOCX + PDF)" style="edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" source="fn_generate" target="st_generated" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e18" value="delete 4 files" style="edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" source="fn_delete" target="st_generated" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e20" value="render DOCX → PDF" style="edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" source="fn_generate" target="fn_renderer" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e19" value="deploy Hosting + Functions + Rules" style="edgeStyle=orthogonalEdgeStyle;fontSize=11;" edge="1" source="github_actions" target="hosting" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+  </root>
+</mxGraphModel>

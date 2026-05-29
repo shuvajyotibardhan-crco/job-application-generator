@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Private user profile — owning user only
+    match /users/{uid}/private/{doc} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Applications — owning user only; status transitions forward-only
+    match /users/{uid}/applications/{appId} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null && request.auth.uid == uid;
+      allow update: if request.auth != null
+                    && request.auth.uid == uid
+                    && isValidStatusTransition(resource.data.status, request.resource.data.status);
+    }
+
+    // Company cache — any authenticated user may read; only Cloud Functions SA writes
+    match /companyCache/{slug} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    function isValidStatusTransition(from, to) {
+      return (from == 'Submitted'   && to == 'In Progress')
+          || (from == 'In Progress' && to == 'Completed')
+          || from == to;
+    }
+  }
+}

@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+.DS_Store
+functions/.env
+functions/lib/
+*-firebase-adminsdk-*.json
+firebase-debug.log
+.firebase/
