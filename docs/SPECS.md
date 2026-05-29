@@ -178,6 +178,7 @@ Resolves a user-entered company name to a canonical result or a disambiguation l
 1. Normalise `companyName` to a slug.
 2. Check `companyCache/{slug}` — if found and < 7 days old, use cached data.
 3. Otherwise query Google Custom Search: `"{companyName}" company official site OR about`.
+   - If Google Search fails (API error, quota, misconfiguration), log a warning and fall back to returning the input name as-is (resolved: true, empty summary). Generation continues without company profile data.
 4. Parse top 3–5 results; if names are distinct, return disambiguation list; if clearly one match, return resolved.
 5. Write/update `companyCache/{slug}` with result and current timestamp.
 
