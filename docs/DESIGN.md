@@ -13,6 +13,9 @@ The system is a single-page React application backed entirely by Firebase. All s
 
 ## Module Design
 
+### `src/firebase.ts`
+Initialises the Firebase app from `VITE_*` environment variables and exports the four SDK handles used across the frontend (`auth`, `db`, `storage`, `functions`). Also initialises Firebase App Check with a reCAPTCHA v3 provider when `VITE_FIREBASE_APP_CHECK_KEY` is present; in `DEV` mode a debug token is activated instead so local development works without a real site key.
+
 ### `src/App.tsx`
 Top-level router and auth state manager. Listens to Firebase `onAuthStateChanged` and either shows `<SignIn>` or the authenticated `<Layout>` shell. Exports a `ProfileGuard` component used on `/dashboard` and `/new-application` routes: on each render it fetches the user's profile from Firestore and redirects to `/profile` if `isProfileComplete()` returns false, ensuring first-time users fill in their details before creating applications.
 

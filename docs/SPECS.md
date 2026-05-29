@@ -377,6 +377,7 @@ All secrets stored in `.env` (gitignored). See `.env.example` for variable names
 │
 ├── src/
 │   ├── main.tsx                      # React entry point
+│   ├── firebase.ts                   # Firebase app init, App Check (reCAPTCHA v3), exports auth/db/storage/functions
 │   ├── App.tsx                       # Router, auth guard, and ProfileGuard (redirects to /profile if profile incomplete)
 │   ├── components/
 │   │   ├── Layout.tsx                # Shell with nav and copyright footer
@@ -454,4 +455,4 @@ All secrets stored in `.env` (gitignored). See `.env.example` for variable names
 - Status backward transitions are rejected at the Firestore rules layer — UI enforcement alone is insufficient
 - Google Docs base resume import uses the public export URL (`/export?format=docx`) — if the document is not publicly accessible the import fails gracefully with a user-facing error; no OAuth scope for the user's Google Drive is requested or stored
 - All Cloud Function inputs are validated against expected types before any downstream API call
-- Firebase App Check should be enabled in production to prevent abuse of callable functions from non-app clients
+- Firebase App Check is enabled via reCAPTCHA v3 (`VITE_FIREBASE_APP_CHECK_KEY`); callable functions reject requests without a valid App Check token. Debug token mode is active in `DEV` builds for local testing.
