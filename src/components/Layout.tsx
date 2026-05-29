@@ -19,6 +19,9 @@ export default function Layout() {
           <span className="sm:hidden">JAG</span>
         </Link>
         <div className="flex items-center gap-3 sm:gap-6 min-w-0">
+          <Link to="/dashboard" className="text-sm text-gray-600 hover:text-indigo-600 shrink-0">
+            Dashboard
+          </Link>
           <Link to="/profile" className="text-sm text-gray-600 hover:text-indigo-600 shrink-0">
             Profile
           </Link>
