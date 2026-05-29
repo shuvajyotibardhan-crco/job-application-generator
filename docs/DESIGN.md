@@ -89,8 +89,8 @@ The detection sub-agent does a simpler analytical task than the full generation.
 ### Why cache company search results in Firestore?
 Multiple users applying to the same company would otherwise trigger duplicate Google Custom Search API calls. A `companyCache` collection keyed by a normalised company slug avoids re-querying, saving both Google API quota and latency.
 
-### Why DOCX as the primary generated format?
-The `docx` npm package gives precise control over formatting (fonts, spacing, margins, page breaks) to enforce the 2-page rule and second-page minimum. PDF is derived from DOCX for download. Storing both gives users flexibility.
+### Why DOCX as the only download format?
+DOCX is the only format offered for download so users can open and edit the document before submitting. PDF is still generated and stored in Firebase Storage (used internally), but not exposed in the UI.
 
 ### Why Firestore security rules for privacy (not just app logic)?
 App-level checks can be bypassed. Firestore rules are enforced at the database layer — no code path, API call, or admin console access can read a user's private data unless the authenticated UID matches. This is the only way to guarantee the privacy requirement.
@@ -190,7 +190,7 @@ The year is rendered dynamically from `new Date().getFullYear()` so it never nee
 | Constraint | Detail |
 |-----------|--------|
 | No free AI tier | Every generation costs ~$0.05 regardless of usage volume |
-| 2-page enforcement is prompt-based | The AI is instructed to stay within 2 pages; in rare edge cases a very long base resume may cause minor overflow, which the DOCX renderer will clip |
+| 2-page enforcement is prompt-based | The AI is given explicit budgets: 600–700 words total, max 4 bullets per role, max 4 roles, cover letter 3 paragraphs ≤80 words each. In rare edge cases a very long base resume may still overflow. |
 | Google Docs base resume | Google Docs URLs are fetched as exported DOCX via the Google Docs export endpoint; if the Doc is not publicly accessible or export-enabled, the import will fail with a user-facing error |
 | Company disambiguation accuracy | Relies on Google Custom Search results; very obscure companies may not resolve cleanly |
 | AI-detection rewrite cap | Max 3 iterations; if content still flags after 3 passes, the best available version is presented with a warning |

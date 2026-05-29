@@ -221,7 +221,7 @@ As a job seeker, I want to view the details of a specific application and downlo
 ### Acceptance Criteria
 1. The detail view **shall** display: company name, role title, date of generation, current status, and the generated resume and cover letter.
 2. The detail view **shall** provide a download button for the resume and a separate download button for the cover letter.
-3. Downloaded files **shall** be in a format that preserves formatting (PDF or DOCX).
+3. Downloaded files **shall** be provided as DOCX only, so the user can make manual edits before submitting.
 4. The detail view **shall** include a back navigation to the dashboard.
 
 ### Test Plan

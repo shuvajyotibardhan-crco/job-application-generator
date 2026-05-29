@@ -223,7 +223,7 @@ Runs the full generation pipeline for one job application.
 4. GENERATE RESUME + COVER LETTER (Claude claude-sonnet-4-6)
    System prompt (cached prefix):
      - Role: expert resume writer and career coach
-     - Rules: 2 pages max, second page ≥ half full, no AI-detector phrases,
+     - Rules: 2 pages max (600–700 word budget; max 4 bullets/role; max 4 roles; cover letter 3 paragraphs ≤80 words each), second page ≥ half full, no AI-detector phrases,
               use varied human language, tailor to JD keywords
    User message:
      - Base resume text
@@ -469,7 +469,7 @@ All secrets stored in `.env` (gitignored). See `.env.example` for variable names
 |---------|-------------------|
 | Firebase Auth (Google OAuth popup) | Chrome 80+, Firefox 75+, Safari 13.1+, Edge 80+ |
 | File upload (PDF/DOCX) | All modern browsers |
-| File download (PDF/DOCX) | All modern browsers |
+| File download (DOCX) | All modern browsers |
 | CSS (Tailwind) | Chrome 80+, Firefox 75+, Safari 13.1+, Edge 80+ |
 | Responsive layout | 375px (mobile), 768px (tablet), 1280px (desktop); dashboard table scrollable on small screens; nav abbreviated on mobile |
 
