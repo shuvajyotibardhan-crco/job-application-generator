@@ -41,12 +41,23 @@ export const generateApplication = functions
     const bucket  = admin.storage().bucket();
 
     // 2. Load user profile + base resume text
+    functions.logger.info('generateApplication: loading profile', { uid });
     const profileSnap = await db.collection('users').doc(uid).collection('private').doc('profile').get();
     if (!profileSnap.exists) {
       throw new functions.https.HttpsError('failed-precondition', 'Profile not found');
     }
     const profile = profileSnap.data()!;
-    const baseResumeText = await extractResumeText(bucket, profile.baseResumeRef, profile.baseResumeType);
+    if (!profile.baseResumeRef || !profile.baseResumeType) {
+      throw new functions.https.HttpsError('failed-precondition', 'No base resume uploaded. Please add a resume on your Profile page.');
+    }
+    functions.logger.info('generateApplication: extracting resume text', { type: profile.baseResumeType });
+    let baseResumeText: string;
+    try {
+      baseResumeText = await extractResumeText(bucket, profile.baseResumeRef, profile.baseResumeType);
+    } catch (e) {
+      functions.logger.error('generateApplication: resume extraction failed', { e });
+      throw new functions.https.HttpsError('internal', `Failed to read your base resume: ${e instanceof Error ? e.message : String(e)}`);
+    }
 
     // 3. Load / refresh company cache
     const { companyProfile, roleInfo } = await loadCompanyData(db, companySlug, companyName, roleTitle);
@@ -55,7 +66,10 @@ export const generateApplication = functions
     const generationDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     const selectedUrls   = selectUrls(profile.profileUrls ?? [], 2);
 
-    let rawOutput = await generateDocuments({
+    functions.logger.info('generateApplication: calling Claude');
+    let rawOutput: string;
+    try {
+      rawOutput = await generateDocuments({
       baseResumeText,
       jobDescription,
       companyProfile,
@@ -68,8 +82,12 @@ export const generateApplication = functions
         state:    profile.state,
         urls:     selectedUrls,
       },
-      generationDate,
-    });
+        generationDate,
+      });
+    } catch (e) {
+      functions.logger.error('generateApplication: Claude API failed', { e });
+      throw new functions.https.HttpsError('internal', `AI generation failed: ${e instanceof Error ? e.message : String(e)}`);
+    }
 
     // 5. AI-detection check loop (max 3 iterations)
     let parsed = parseOutput(rawOutput);
