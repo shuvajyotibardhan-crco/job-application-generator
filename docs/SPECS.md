@@ -381,6 +381,7 @@ All secrets stored in `.env` (gitignored). See `.env.example` for variable names
 │   │   ├── StatusBadge.tsx           # Status chip (Submitted / In Progress / Completed)
 │   │   ├── ProfileUrlList.tsx        # Add/remove URL list component
 │   │   └── ConfirmDialog.tsx         # Generic confirmation modal
+│   ├── vite-env.d.ts                     # Vite client type reference (import.meta.env types)
 │   ├── constants.ts                      # APP_ADMIN_EMAIL and other app-wide constants
 │   ├── pages/
 │   │   ├── SignIn.tsx
