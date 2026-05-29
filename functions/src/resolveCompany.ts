@@ -29,10 +29,16 @@ export const resolveCompany = functions.https.onCall(async (data, context) => {
     return { resolved: true, company: { name: d.companyName, slug: d.slug, summary: d.profile } };
   }
 
-  // Fetch search results
-  const results = await searchCompany(companyName);
+  // Fetch search results — fall back gracefully if Google Search fails
+  let results: Awaited<ReturnType<typeof searchCompany>> = [];
+  try {
+    results = await searchCompany(companyName);
+  } catch (e) {
+    functions.logger.warn('Google Search failed, falling back to unresolved company', { companyName, e });
+  }
+
   if (results.length === 0) {
-    // No results — return the input as-is
+    // No results or search failed — return the input as-is
     const fallback: CompanyOption = { name: companyName.trim(), slug: inputSlug, summary: '' };
     await writeCache(db, fallback);
     return { resolved: true, company: fallback };

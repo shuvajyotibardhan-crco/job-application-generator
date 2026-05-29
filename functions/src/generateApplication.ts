@@ -187,14 +187,19 @@ async function loadCompanyData(
     };
   }
 
-  // Refresh cache
-  const [companyResults, roleResults] = await Promise.all([
-    searchCompany(name),
-    searchRole(name, roleTitle),
-  ]);
-
-  const companyProfile = companyResults.map(r => r.snippet).join(' ');
-  const roleInfo       = roleResults.map(r => r.snippet).join(' ');
+  // Refresh cache — fall back to empty strings if Google Search fails
+  let companyProfile = '';
+  let roleInfo = '';
+  try {
+    const [companyResults, roleResults] = await Promise.all([
+      searchCompany(name),
+      searchRole(name, roleTitle),
+    ]);
+    companyProfile = companyResults.map(r => r.snippet).join(' ');
+    roleInfo       = roleResults.map(r => r.snippet).join(' ');
+  } catch (e) {
+    functions.logger.warn('Google Search failed during generateApplication, continuing without company data', { name, e });
+  }
 
   await db.collection('companyCache').doc(slug).set({
     slug,
