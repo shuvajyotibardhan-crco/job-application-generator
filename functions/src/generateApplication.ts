@@ -3,7 +3,9 @@ import * as admin from 'firebase-admin';
 import type { Bucket } from '@google-cloud/storage';
 import axios from 'axios';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdfParse = require('pdf-parse') as (buf: Buffer) => Promise<{ text: string }>;
+const _pdfParseLib = require('pdf-parse');
+const pdfParse: (buf: Buffer) => Promise<{ text: string }> =
+  typeof _pdfParseLib === 'function' ? _pdfParseLib : _pdfParseLib.default ?? _pdfParseLib;
 import mammoth from 'mammoth';
 import { isCacheStale, selectUrls } from './lib/utils';
 import { searchCompany, searchRole } from './lib/searchClient';
