@@ -40,10 +40,8 @@ interface Application {
   jobDescription: string;      // Full JD text (pasted or extracted from upload)
   status: 'Submitted' | 'In Progress' | 'Completed';
   generatedAt: Timestamp;      // Date of generation — shown in cover letter header
-  resumeStoragePath: string;   // Storage path for generated .docx
-  resumePdfPath: string;       // Storage path for generated .pdf
-  coverLetterStoragePath: string;
-  coverLetterPdfPath: string;
+  resumeStoragePath: string;        // Storage path for generated .docx
+  coverLetterStoragePath: string;   // Storage path for generated .docx
   aiDetectionWarning: boolean;  // true if still flagged after 3 rewrite passes
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -76,9 +74,7 @@ users/
     applications/
       {appId}/
         resume.docx
-        resume.pdf
         cover-letter.docx
-        cover-letter.pdf
 ```
 
 ---
@@ -253,18 +249,14 @@ Runs the full generation pipeline for one job application.
    Cover letter header includes: name, email, phone, city/state, 1–2 URLs, generation date.
    Enforce page layout: assert rendered page count ≤ 2.
 
-7. RENDER PDF
-   Re-render the same structured JSON to PDF using pdfmake (pure JS — no system dependencies, no LibreOffice).
+7. UPLOAD TO STORAGE
+   Upload resume.docx, cover-letter.docx to users/{uid}/applications/{appId}/.
 
-8. UPLOAD TO STORAGE
-   Upload resume.docx, resume.pdf, cover-letter.docx, cover-letter.pdf
-   to users/{uid}/applications/{appId}/.
-
-9. WRITE APPLICATION RECORD
+8. WRITE APPLICATION RECORD
    Create users/{uid}/applications/{appId} in Firestore with all fields.
    status = 'Submitted', generatedAt = now.
 
-10. RETURN { appId }
+9. RETURN { appId }
 ```
 
 ---
@@ -287,7 +279,7 @@ Deletes an application record and all associated files.
 ```
 1. Verify request.auth.uid.
 2. Read application record — verify uid matches.
-3. Delete Storage files (resume.docx, resume.pdf, cover-letter.docx, cover-letter.pdf).
+3. Delete Storage files (resume.docx, cover-letter.docx).
    Log errors individually but do not abort.
 4. Delete Firestore document users/{uid}/applications/{appId}.
 5. Return { success: true }.
@@ -380,7 +372,7 @@ All secrets stored in `.env` (gitignored). See `.env.example` for variable names
 | `VITE_FIREBASE_STORAGE_BUCKET` | Frontend | e.g. `project.appspot.com` |
 | `VITE_FIREBASE_MESSAGING_SENDER_ID` | Frontend | Firebase messaging sender ID |
 | `VITE_FIREBASE_APP_ID` | Frontend | Firebase app ID |
-| `VITE_FIREBASE_APP_CHECK_KEY` | Frontend | reCAPTCHA v3 site key for Firebase App Check — omit in local dev (debug token used instead) |
+| `VITE_FIREBASE_APP_CHECK_KEY` | ~~Frontend~~ removed | App Check removed from client — reCAPTCHA throttling was stalling function calls and enforcement was never enabled |
 | `ANTHROPIC_API_KEY` | Cloud Functions | Anthropic API key — never in frontend |
 | `GOOGLE_SEARCH_API_KEY` | Cloud Functions | Google Custom Search API key |
 | `GOOGLE_SEARCH_ENGINE_ID` | Cloud Functions | Programmable Search Engine ID |
@@ -404,7 +396,7 @@ All secrets stored in `.env` (gitignored). See `.env.example` for variable names
 │
 ├── src/
 │   ├── main.tsx                      # React entry point
-│   ├── firebase.ts                   # Firebase app init, App Check (reCAPTCHA v3), exports auth/db/storage/functions
+│   ├── firebase.ts                   # Firebase app init, exports auth/db/storage/functions (App Check removed)
 │   ├── App.tsx                       # Router, auth guard, and ProfileGuard (redirects to /profile if profile incomplete)
 │   ├── components/
 │   │   ├── Layout.tsx                # Shell with nav and copyright footer
@@ -426,7 +418,7 @@ All secrets stored in `.env` (gitignored). See `.env.example` for variable names
 │       └── applications.ts
 │
 ├── functions/
-│   ├── package.json                  # Functions dependencies (docx, pdfmake, anthropic, google-search, pdf-parse, mammoth)
+│   ├── package.json                  # Functions dependencies (docx, anthropic, google-search, pdf-parse, mammoth)
 │   ├── .env.example                  # Functions secret variable names
 │   └── src/
 │       ├── index.ts                  # Exports all callable functions
@@ -438,7 +430,7 @@ All secrets stored in `.env` (gitignored). See `.env.example` for variable names
 │           ├── claudeClient.ts       # Anthropic SDK wrapper with prompt caching
 │           ├── searchClient.ts       # Google Custom Search wrapper
 │           ├── docRenderer.ts        # DOCX generation via docx package
-│           ├── pdfConverter.ts       # PDF generation via pdfmake (re-renders same structured JSON — no system deps)
+│           ├── pdfConverter.ts       # PDF generation (unused — kept in repo but not called)
 │           └── utils.ts              # normaliseSlug, isCacheStale, selectUrls helpers
 │
 ├── firestore.rules
@@ -483,4 +475,4 @@ All secrets stored in `.env` (gitignored). See `.env.example` for variable names
 - Status backward transitions are rejected at the Firestore rules layer — UI enforcement alone is insufficient
 - Google Docs base resume import uses the public export URL (`/export?format=docx`) — if the document is not publicly accessible the import fails gracefully with a user-facing error; no OAuth scope for the user's Google Drive is requested or stored
 - All Cloud Function inputs are validated against expected types before any downstream API call
-- Firebase App Check is enabled via reCAPTCHA v3 (`VITE_FIREBASE_APP_CHECK_KEY`); callable functions reject requests without a valid App Check token. Debug token mode is active in `DEV` builds for local testing.
+- Firebase App Check has been removed from the client — reCAPTCHA token throttling was causing `deadline-exceeded` errors on callable function invocations, and enforcement was never enabled on the Cloud Functions.

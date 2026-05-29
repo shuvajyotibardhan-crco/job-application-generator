@@ -14,7 +14,7 @@ The system is a single-page React application backed entirely by Firebase. All s
 ## Module Design
 
 ### `src/firebase.ts`
-Initialises the Firebase app from `VITE_*` environment variables and exports the four SDK handles used across the frontend (`auth`, `db`, `storage`, `functions`). Also initialises Firebase App Check with a reCAPTCHA v3 provider when `VITE_FIREBASE_APP_CHECK_KEY` is present; in `DEV` mode a debug token is activated instead so local development works without a real site key.
+Initialises the Firebase app from `VITE_*` environment variables and exports the four SDK handles used across the frontend (`auth`, `db`, `storage`, `functions`). App Check has been removed — the reCAPTCHA token fetch was being throttled (400 errors), stalling callable function invocations. App Check enforcement was never enabled on the Cloud Functions, so removing it has no security impact.
 
 ### `src/App.tsx`
 Top-level router and auth state manager. Listens to Firebase `onAuthStateChanged` and either shows `<SignIn>` or the authenticated `<Layout>` shell. Exports a `ProfileGuard` component used on `/dashboard` and `/new-application` routes: on each render it fetches the user's profile from Firestore and redirects to `/profile` if `isProfileComplete()` returns false, ensuring first-time users fill in their details before creating applications.
@@ -53,7 +53,7 @@ Main generation pipeline:
 3. Calls Claude `claude-sonnet-4-6` with base resume + JD + research results to generate resume and cover letter.
 4. Enforces 2-page constraint and second-page minimum in the generation prompt.
 5. Calls AI-detection sub-agent (Claude `claude-haiku-4-5`) to check and rewrite flagged language (up to 3 iterations).
-6. Renders final documents as formatted DOCX (using `docx` npm package) and converts to PDF.
+6. Renders final documents as formatted DOCX (using `docx` npm package). PDF generation removed — only DOCX is stored and offered for download.
 7. Uploads both formats to Firebase Storage; writes application record to Firestore.
 
 ### `functions/src/downloadFile.ts` (Cloud Function — callable)
@@ -159,7 +159,7 @@ The Anthropic API has no free tier and is the only mandatory per-application cos
 | AI detection check | Claude claude-haiku-4-5 (Anthropic) | 10× cheaper; sufficient for pattern analysis and targeted rewriting |
 | Company research | Google Custom Search API | Retrieves public company and role information reliably |
 | Document formatting | `docx` npm package | Programmatic DOCX generation with precise layout control (fonts, spacing, page breaks) |
-| PDF export | `pdfmake` (pure JS) | Re-renders structured JSON to PDF — no system dependencies, no LibreOffice required in Cloud Functions |
+| PDF export | ~~`pdfmake`~~ removed | PDF generation removed — DOCX is the only output format |
 | Backend | Firebase Cloud Functions (Node.js 20) | Keeps all API keys server-side; auto-scales |
 | CI/CD | GitHub Actions + FirebaseExtended/action-hosting-deploy | No local Firebase CLI dependency |
 

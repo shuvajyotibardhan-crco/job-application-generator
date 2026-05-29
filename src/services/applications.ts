@@ -17,9 +17,7 @@ export interface Application {
   status: ApplicationStatus;
   generatedAt: unknown;
   resumeStoragePath: string;
-  resumePdfPath: string;
   coverLetterStoragePath: string;
-  coverLetterPdfPath: string;
   createdAt: unknown;
   updatedAt: unknown;
   aiDetectionWarning?: boolean;

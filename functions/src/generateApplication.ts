@@ -9,7 +9,6 @@ import { isCacheStale, selectUrls } from './lib/utils';
 import { searchCompany, searchRole } from './lib/searchClient';
 import { generateDocuments, checkAiDetection, rewriteFlaggedSections } from './lib/claudeClient';
 import { renderResume, renderCoverLetter, ResumeSection, CoverLetterHeader } from './lib/docRenderer';
-import { renderResumePdf, renderCoverLetterPdf } from './lib/pdfConverter';
 
 interface RequestData {
   companySlug: string;
@@ -120,23 +119,17 @@ export const generateApplication = functions
     const resumeDocx      = await renderResume(parsed.resume.sections, personalDetails);
     const coverLetterDocx = await renderCoverLetter(parsed.coverLetter.body, personalDetails, generationDate, parsed.coverLetter.header);
 
-    // 7. Render PDF
-    const resumePdf      = await renderResumePdf(parsed.resume.sections, personalDetails);
-    const coverLetterPdf = await renderCoverLetterPdf(parsed.coverLetter.body, personalDetails, generationDate, parsed.coverLetter.header);
-
-    // 8. Create Firestore doc ID and upload files
+    // 7. Upload to Storage
     const appRef = db.collection('users').doc(uid).collection('applications').doc();
     const appId  = appRef.id;
     const basePath = `users/${uid}/applications/${appId}`;
 
     await Promise.all([
-      bucket.file(`${basePath}/resume.docx`).save(resumeDocx,      { metadata: { contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' } }),
-      bucket.file(`${basePath}/resume.pdf`).save(resumePdf,        { metadata: { contentType: 'application/pdf' } }),
+      bucket.file(`${basePath}/resume.docx`).save(resumeDocx,           { metadata: { contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' } }),
       bucket.file(`${basePath}/cover-letter.docx`).save(coverLetterDocx, { metadata: { contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' } }),
-      bucket.file(`${basePath}/cover-letter.pdf`).save(coverLetterPdf,   { metadata: { contentType: 'application/pdf' } }),
     ]);
 
-    // 9. Write application record
+    // 8. Write application record
     await appRef.set({
       appId,
       uid,
@@ -145,11 +138,9 @@ export const generateApplication = functions
       roleTitle,
       jobDescription,
       status: 'Submitted',
-      generatedAt:              admin.firestore.Timestamp.now(),
-      resumeStoragePath:        `${basePath}/resume.docx`,
-      resumePdfPath:            `${basePath}/resume.pdf`,
-      coverLetterStoragePath:   `${basePath}/cover-letter.docx`,
-      coverLetterPdfPath:       `${basePath}/cover-letter.pdf`,
+      generatedAt:            admin.firestore.Timestamp.now(),
+      resumeStoragePath:      `${basePath}/resume.docx`,
+      coverLetterStoragePath: `${basePath}/cover-letter.docx`,
       aiDetectionWarning,
       createdAt: admin.firestore.Timestamp.now(),
       updatedAt: admin.firestore.Timestamp.now(),
