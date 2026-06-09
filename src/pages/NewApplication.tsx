@@ -31,45 +31,15 @@ export default function NewApplication() {
   const [selectedSlug, setSelectedSlug] = useState('');
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const ext = file.name.split('.').pop()?.toLowerCase();
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
     setExtracting(true);
     setError('');
     try {
-      let text = '';
-      if (ext === 'txt') {
-        text = await file.text();
-      } else if (ext === 'pdf') {
-        const { getDocument, GlobalWorkerOptions } = await import('pdfjs-dist');
-        GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs`;
-        const arrayBuffer = await file.arrayBuffer();
-        const pdf = await getDocument({ data: arrayBuffer }).promise;
-        const pages = await Promise.all(
-          Array.from({ length: pdf.numPages }, (_, i) =>
-            pdf.getPage(i + 1).then(p => p.getTextContent()).then(c => c.items.map((item) => 'str' in item ? item.str : '').join(' '))
-          )
-        );
-        text = pages.join('\n\n');
-      } else if (ext === 'docx') {
-        const mammoth = await import('mammoth');
-        const arrayBuffer = await file.arrayBuffer();
-        const result = await mammoth.extractRawText({ arrayBuffer });
-        text = result.value;
-      } else if (ext === 'png' || ext === 'jpg' || ext === 'jpeg') {
-        const mediaType = ext === 'png' ? 'image/png' : 'image/jpeg';
-        const arrayBuffer = await file.arrayBuffer();
-        const imageBase64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-        const fn = httpsCallable<{ imageBase64: string; mediaType: string }, { text: string }>(functions, 'extractImageText');
-        const result = await fn({ imageBase64, mediaType });
-        text = result.data.text;
-      } else {
-        setError('Only .txt, .pdf, .docx, .png, and .jpg files are supported.');
-        return;
-      }
-      setJd(text.trim());
-    } catch {
-      setError('Failed to read file. Please paste the text manually.');
+      const parts = await Promise.all(files.map(extractFileText));
+      setJd(parts.filter(Boolean).join('\n\n'));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to read one or more files.');
     } finally {
       setExtracting(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -227,7 +197,7 @@ export default function NewApplication() {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".txt,.pdf,.docx,.png,.jpg,.jpeg"
+                multiple
                 onChange={handleFileUpload}
                 className="hidden"
               />
@@ -237,14 +207,14 @@ export default function NewApplication() {
                 disabled={extracting}
                 className="flex items-center gap-1.5 text-xs text-indigo-600 border border-indigo-200 rounded-lg px-3 py-1.5 hover:bg-indigo-50 disabled:opacity-50 transition-colors"
               >
-                {extracting ? <><Spinner /><span>Reading…</span></> : <><UploadIcon />Upload file</>}
+                {extracting ? <><Spinner /><span>Reading…</span></> : <><UploadIcon />Upload files</>}
               </button>
             </div>
           </div>
           <textarea
             value={jd} onChange={e => setJd(e.target.value)}
             rows={14}
-            placeholder="Paste the full job description here, or upload a .txt / .pdf / .docx / .png / .jpg file…"
+            placeholder="Paste the job description here, or upload screenshots / PDFs / docs (multiple files supported)…"
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-y font-mono"
           />
           <p className="text-xs text-gray-400">Include the full JD for the best results — requirements, responsibilities, and any skills listed.</p>
@@ -280,6 +250,51 @@ function Spinner({ large }: { large?: boolean }) {
       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
     </svg>
   );
+}
+
+async function extractFileText(file: File): Promise<string> {
+  const ext = file.name.split('.').pop()?.toLowerCase();
+
+  if (ext === 'txt') return file.text();
+
+  if (ext === 'pdf') {
+    const { getDocument, GlobalWorkerOptions } = await import('pdfjs-dist');
+    GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs`;
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await getDocument({ data: arrayBuffer }).promise;
+    const pages = await Promise.all(
+      Array.from({ length: pdf.numPages }, (_, i) =>
+        pdf.getPage(i + 1).then(p => p.getTextContent()).then(c => c.items.map((item) => 'str' in item ? item.str : '').join(' '))
+      )
+    );
+    return pages.join('\n\n');
+  }
+
+  if (ext === 'docx') {
+    const mammoth = await import('mammoth');
+    const arrayBuffer = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer });
+    return result.value;
+  }
+
+  if (ext === 'png' || ext === 'jpg' || ext === 'jpeg') {
+    const mediaType = ext === 'png' ? 'image/png' : 'image/jpeg';
+    const arrayBuffer = await file.arrayBuffer();
+    const uint8 = new Uint8Array(arrayBuffer);
+    let binary = '';
+    for (let i = 0; i < uint8.length; i++) binary += String.fromCharCode(uint8[i]);
+    const imageBase64 = btoa(binary);
+    const fn = httpsCallable<{ imageBase64: string; mediaType: string }, { text: string }>(functions, 'extractImageText');
+    const result = await fn({ imageBase64, mediaType });
+    return result.data.text;
+  }
+
+  // Fallback for any other format — try reading as plain text
+  try {
+    return await file.text();
+  } catch {
+    throw new Error(`Can't read "${file.name}" — try copying and pasting the text instead.`);
+  }
 }
 
 function errorMessage(e: unknown): string {
