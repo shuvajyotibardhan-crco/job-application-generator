@@ -29,7 +29,7 @@ First-time setup and ongoing profile management. Handles base resume file upload
 Default authenticated landing page. Reads the user's application list from Firestore (reverse-chron), renders each as a row with status badge, and provides the "New Application" entry point. Empty-state handled inline.
 
 ### `src/pages/NewApplication.tsx`
-Multi-step form: (1) JD input (paste or file upload — .txt/.pdf/.docx extracted client-side via pdfjs-dist and mammoth, both dynamically imported) + company name + role title, (2) optional company disambiguation step, (3) live progress screen while the Cloud Function runs — subscribes to `users/{uid}/private/generationProgress` via `onSnapshot` and displays each pipeline stage message as the function writes it. On submit, calls the `generateApplication` Cloud Function.
+Multi-step form: (1) JD input (paste or file upload — .txt/.pdf/.docx extracted client-side; .png/.jpg sent to the `extractImageText` Cloud Function for Claude Vision OCR) + company name + role title, (2) optional company disambiguation step, (3) live progress screen while the Cloud Function runs — subscribes to `users/{uid}/private/generationProgress` via `onSnapshot` and displays each pipeline stage message as the function writes it. On submit, calls the `generateApplication` Cloud Function.
 
 ### `src/pages/ApplicationDetail.tsx`
 Shows all stored fields for one application. Renders status control (forward-only), download buttons for resume and cover letter, and the Delete Application action with confirmation dialog.
