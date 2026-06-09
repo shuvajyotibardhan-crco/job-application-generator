@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { onSnapshot, doc } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
 import { resolveCompany, generateApplication } from '../services/applications';
-import { db, auth } from '../firebase';
+import { db, auth, functions } from '../firebase';
 
 type Step = 'form' | 'disambiguate' | 'generating';
 
@@ -55,8 +56,15 @@ export default function NewApplication() {
         const arrayBuffer = await file.arrayBuffer();
         const result = await mammoth.extractRawText({ arrayBuffer });
         text = result.value;
+      } else if (ext === 'png' || ext === 'jpg' || ext === 'jpeg') {
+        const mediaType = ext === 'png' ? 'image/png' : 'image/jpeg';
+        const arrayBuffer = await file.arrayBuffer();
+        const imageBase64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+        const fn = httpsCallable<{ imageBase64: string; mediaType: string }, { text: string }>(functions, 'extractImageText');
+        const result = await fn({ imageBase64, mediaType });
+        text = result.data.text;
       } else {
-        setError('Only .txt, .pdf, and .docx files are supported.');
+        setError('Only .txt, .pdf, .docx, .png, and .jpg files are supported.');
         return;
       }
       setJd(text.trim());
@@ -219,7 +227,7 @@ export default function NewApplication() {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".txt,.pdf,.docx"
+                accept=".txt,.pdf,.docx,.png,.jpg,.jpeg"
                 onChange={handleFileUpload}
                 className="hidden"
               />
@@ -236,7 +244,7 @@ export default function NewApplication() {
           <textarea
             value={jd} onChange={e => setJd(e.target.value)}
             rows={14}
-            placeholder="Paste the full job description here, or upload a .txt / .pdf / .docx file…"
+            placeholder="Paste the full job description here, or upload a .txt / .pdf / .docx / .png / .jpg file…"
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-y font-mono"
           />
           <p className="text-xs text-gray-400">Include the full JD for the best results — requirements, responsibilities, and any skills listed.</p>
