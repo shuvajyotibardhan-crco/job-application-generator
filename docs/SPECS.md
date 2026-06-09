@@ -14,7 +14,7 @@ interface UserProfile {
   city: string;                 // e.g. "San Francisco"
   state: string;                // e.g. "CA"
   baseResumeRef: string | null; // Firebase Storage path OR Google Docs export URL
-  baseResumeType: 'pdf' | 'docx' | 'gdocs' | null;
+  baseResumeType: 'pdf' | 'docx' | 'gdocs' | 'png' | 'jpg' | null;
   profileUrls: ProfileUrl[];    // Ordered list of optional URLs
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -70,7 +70,7 @@ All paths are under the owning user's UID — Storage rules deny access to any o
 users/
   {uid}/
     resume/
-      base.pdf          # or base.docx — uploaded base resume (only one at a time)
+      base.pdf          # or base.docx / base.png / base.jpg — uploaded base resume (only one at a time)
     applications/
       {appId}/
         resume.docx
@@ -208,7 +208,7 @@ Runs the full generation pipeline for one job application.
 2. LOAD USER PROFILE
    Read users/{uid}/private/profile from Firestore.
    Download base resume from Storage (or fetch Google Docs export).
-   Extract plain text from PDF/DOCX.
+   Extract plain text from PDF/DOCX. For PNG/JPG, send image to Claude Vision (Haiku) to extract text.
 
 3. LOAD COMPANY RESEARCH
    Read companyCache/{slug}.
@@ -468,7 +468,7 @@ All secrets stored in `.env` (gitignored). See `.env.example` for variable names
 | Feature | Minimum requirement |
 |---------|-------------------|
 | Firebase Auth (Google OAuth popup) | Chrome 80+, Firefox 75+, Safari 13.1+, Edge 80+ |
-| File upload (PDF/DOCX) | All modern browsers |
+| File upload (PDF/DOCX/PNG/JPG) | All modern browsers |
 | File download (DOCX) | All modern browsers |
 | CSS (Tailwind) | Chrome 80+, Firefox 75+, Safari 13.1+, Edge 80+ |
 | Responsive layout | 375px (mobile), 768px (tablet), 1280px (desktop); dashboard table scrollable on small screens; nav abbreviated on mobile |

@@ -7,7 +7,7 @@ A web application that enables job seekers to generate tailored, ATS-optimised, 
 
 ### In Scope
 - Google OAuth and Email/Password authentication (no guest access)
-- User profile: base resume upload (PDF/DOCX/Google Docs URL), personal details, optional URLs
+- User profile: base resume upload (PDF/DOCX/PNG/JPG/Google Docs URL), personal details, optional URLs
 - New job application flow: JD input, company + role input, company disambiguation
 - AI-generated tailored resume and cover letter (max 2 pages, second page ≥ half full)
 - Fully formatted document output; cover letter header includes generation date
@@ -61,7 +61,7 @@ As a job seeker, I want to store my base resume and personal details in my profi
 
 ### Acceptance Criteria
 1. On first login, the app **shall** direct the user to a profile setup screen before any other action.
-2. The profile **must** accept a base resume in PDF, DOCX, or Google Docs URL format.
+2. The profile **must** accept a base resume in PDF, DOCX, PNG, JPG, or Google Docs URL format.
 3. The user **shall** be able to replace the base resume at any time; the new upload replaces the previous one.
 4. The profile **shall** capture: full name, email address, phone number, city and state.
 5. The profile **shall** allow the user to add one or more optional URLs (LinkedIn, GitHub, portfolio, etc.) with a label per URL.
@@ -77,6 +77,7 @@ As a job seeker, I want to store my base resume and personal details in my profi
 | First login (new account) | Profile setup screen shown before dashboard |
 | Upload a PDF resume | File accepted; confirmation shown |
 | Upload a DOCX resume | File accepted; confirmation shown |
+| Upload a PNG or JPG resume image | File accepted; confirmation shown |
 | Paste a Google Docs URL | URL accepted and stored |
 | Upload a new resume to replace existing | Old file removed; new file stored |
 | Add a LinkedIn URL with label "LinkedIn" | URL appears in the list |
