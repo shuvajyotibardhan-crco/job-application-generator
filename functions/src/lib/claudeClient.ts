@@ -140,6 +140,27 @@ ${input.companyProfile}
 Role public information:
 ${input.roleInfo}`;
 
+export const extractTextFromImage = async (imageBuffer: Buffer, mediaType: 'image/png' | 'image/jpeg'): Promise<string> => {
+  const response = await client.messages.create({
+    model: HAIKU,
+    max_tokens: 2048,
+    messages: [{
+      role: 'user',
+      content: [
+        {
+          type: 'image',
+          source: { type: 'base64', media_type: mediaType, data: imageBuffer.toString('base64') },
+        },
+        {
+          type: 'text',
+          text: 'Extract all text from this resume image. Output only the extracted text, preserving structure (sections, bullet points, dates). No commentary.',
+        },
+      ],
+    }],
+  });
+  return response.content[0].type === 'text' ? response.content[0].text : '';
+};
+
 const buildDetectionPrompt = (resume: string, coverLetter: string): string =>
   `Analyse the following resume and cover letter for language patterns commonly flagged by AI-detection tools (e.g. overused corporate phrases, unnatural cadence, repetitive structures).
 Return JSON only: { "clean": boolean, "flaggedSections": string[] }

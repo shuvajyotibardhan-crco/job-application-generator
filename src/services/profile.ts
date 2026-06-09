@@ -15,7 +15,7 @@ export interface UserProfile {
   city: string;
   state: string;
   baseResumeRef: string | null;
-  baseResumeType: 'pdf' | 'docx' | 'gdocs' | null;
+  baseResumeType: 'pdf' | 'docx' | 'gdocs' | 'png' | 'jpg' | null;
   profileUrls: ProfileUrl[];
   createdAt?: unknown;
   updatedAt?: unknown;

@@ -53,15 +53,17 @@ export default function Profile() {
     const file = e.target.files?.[0];
     if (!file) return;
     const ext = file.name.split('.').pop()?.toLowerCase();
-    if (ext !== 'pdf' && ext !== 'docx') {
-      setError('Only PDF and DOCX files are accepted.'); return;
+    const allowed = ['pdf', 'docx', 'png', 'jpg', 'jpeg'];
+    if (!ext || !allowed.includes(ext)) {
+      setError('Only PDF, DOCX, PNG, or JPG files are accepted.'); return;
     }
+    const normalised = ext === 'jpeg' ? 'jpg' : ext as 'pdf' | 'docx' | 'png' | 'jpg';
     setUploading(true); setError('');
     try {
       const path = await uploadBaseResume(file);
       setCurrentResumeRef(path);
-      setCurrentResumeType(ext as 'pdf' | 'docx');
-      await saveProfile({ baseResumeRef: path, baseResumeType: ext as 'pdf' | 'docx' });
+      setCurrentResumeType(normalised);
+      await saveProfile({ baseResumeRef: path, baseResumeType: normalised });
       setSuccess('Resume uploaded successfully.');
     } catch {
       setError('Upload failed. Please try again.');
@@ -117,7 +119,7 @@ export default function Profile() {
   const resumeLabel = currentResumeRef
     ? currentResumeType === 'gdocs'
       ? 'Google Docs resume linked'
-      : `Resume on file (${currentResumeType?.toUpperCase()})`
+      : `Resume on file (${currentResumeType?.toUpperCase() ?? 'file'})`
     : 'No resume uploaded yet';
 
   return (
@@ -202,14 +204,14 @@ export default function Profile() {
 
           {resumeMode === 'file' ? (
             <div>
-              <input ref={fileInputRef} type="file" accept=".pdf,.docx" onChange={handleFileUpload} className="hidden" />
+              <input ref={fileInputRef} type="file" accept=".pdf,.docx,.png,.jpg,.jpeg" onChange={handleFileUpload} className="hidden" />
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
                 className="flex items-center gap-2 border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
               >
-                {uploading ? 'Uploading…' : (currentResumeRef && currentResumeType !== 'gdocs') ? 'Replace Resume (PDF / DOCX)' : 'Upload Resume (PDF / DOCX)'}
+                {uploading ? 'Uploading…' : (currentResumeRef && currentResumeType !== 'gdocs') ? 'Replace Resume (PDF / DOCX / Image)' : 'Upload Resume (PDF / DOCX / Image)'}
               </button>
             </div>
           ) : (

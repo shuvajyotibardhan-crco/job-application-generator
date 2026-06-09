@@ -178,6 +178,12 @@ async function extractResumeText(
     return result.value;
   }
 
+  if (type === 'png' || type === 'jpg') {
+    const { extractTextFromImage } = await import('./lib/claudeClient');
+    const mediaType = type === 'png' ? 'image/png' : 'image/jpeg';
+    return extractTextFromImage(fileBuffer, mediaType);
+  }
+
   throw new functions.https.HttpsError('invalid-argument', 'Unknown resume type');
 }
 
