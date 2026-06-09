@@ -124,6 +124,7 @@ As a job seeker, I want the app to generate a tailored, fully formatted resume a
 2. The base resume, job description, company public profile, and public role information **shall** all be used as inputs to generation.
 3. The generated resume **shall** be tailored to the job description — skills, experience framing, and language **shall** reflect the JD requirements.
 4. The resume header **shall** include the user's name, email, phone, city/state, and 1–2 URLs selected from the user's profile URLs as appropriate to the role (e.g. GitHub for technical roles, LinkedIn otherwise).
+4a. Each experience and education entry **shall** display its location (city, state) on a separate line directly below the title — company — date row.
 5. The cover letter **shall** include a properly formatted header containing: user's name, contact details, 1–2 profile URLs, and the date the document was generated.
 6. Both documents **must** be capped at 2 pages maximum.
 7. If either document reaches a second page, the second page **must** be at least half full — generation **shall** expand content to meet this minimum if needed.

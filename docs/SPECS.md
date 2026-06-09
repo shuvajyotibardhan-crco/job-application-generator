@@ -233,6 +233,12 @@ Runs the full generation pipeline for one job application.
        resume: { sections: ResumeSection[] },
        coverLetter: { header: CoverLetterHeader; body: string }
      }
+   ResumeSection: { heading: string; items: ResumeBulletItem[] }
+   ResumeBulletItem: { title?: string; subtitle?: string; period?: string; location?: string; bullets?: string[]; text?: string }
+     — title: job title or degree (bold)
+     — subtitle: company or institution (after em dash on same line as title)
+     — period: date range right-aligned on the title row
+     — location: city, state rendered on a separate line below the title row
 
 5. AI-DETECTION CHECK (Claude claude-haiku-4-5, up to 3 iterations)
    Prompt: analyse resume and cover letter text for AI-detector patterns.
@@ -246,6 +252,7 @@ Runs the full generation pipeline for one job application.
 6. RENDER DOCUMENTS (docx npm package)
    Build resume.docx and cover-letter.docx from structured JSON.
    Apply: standard margins, 11pt font, section headings, bullet points.
+   Resume role header: two-line format — line 1: bold title — company [tab right-aligned] date; line 2: location (city, state).
    Cover letter header includes: name, email, phone, city/state, 1–2 URLs, generation date.
    Cover letter closing: "Thanks," on one line, then user's full name on the next line.
    Enforce page layout: assert rendered page count ≤ 2.
