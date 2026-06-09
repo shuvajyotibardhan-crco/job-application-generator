@@ -23,7 +23,7 @@ Top-level router and auth state manager. Listens to Firebase `onAuthStateChanged
 Renders the authentication screen. Handles Google OAuth popup and email/password sign-in/create-account flows via Firebase Auth SDK. No business logic — delegates to `src/services/auth.ts`.
 
 ### `src/pages/Profile.tsx`
-First-time setup and ongoing profile management. Handles base resume file upload (PDF/DOCX) and Google Docs URL input, personal details form, and URL list management. Calls `src/services/profile.ts` for Firestore writes and `src/services/storage.ts` for file uploads.
+First-time setup and ongoing profile management. Handles base resume file upload (PDF, DOCX, PNG, JPG) and Google Docs URL input, personal details form, and URL list management. PNG/JPG uploads are sent to Claude Vision (Haiku) server-side for text extraction. Calls `src/services/profile.ts` for Firestore writes and `src/services/storage.ts` for file uploads.
 
 ### `src/pages/Dashboard.tsx`
 Default authenticated landing page. Reads the user's application list from Firestore (reverse-chron), renders each as a row with status badge, and provides the "New Application" entry point. Empty-state handled inline.
@@ -52,7 +52,7 @@ Main generation pipeline:
 2. Caches search results in Firestore (`companyCache/{slug}`) to avoid duplicate API calls.
 3. Calls Claude `claude-sonnet-4-6` with base resume + JD + research results to generate resume and cover letter.
 4. Enforces 2-page constraint and second-page minimum in the generation prompt.
-5. Calls AI-detection sub-agent (Claude `claude-haiku-4-5`) to check and rewrite flagged language (up to 3 iterations).
+5. Calls AI-detection sub-agent (Claude `claude-haiku-4-5`) to check 8 criteria — banned words, transitional signposts, hedging phrases, passive voice, uniform long-sentence rhythm, repetitive bullet openings, sentence rephrasing, and vague abstractions — then rewrites any flagged sections (up to 3 iterations).
 6. Renders final documents as formatted DOCX (using `docx` npm package). PDF generation removed — only DOCX is stored and offered for download.
 7. Uploads both formats to Firebase Storage; writes application record to Firestore.
 
@@ -90,7 +90,7 @@ The detection sub-agent does a simpler analytical task than the full generation.
 Multiple users applying to the same company would otherwise trigger duplicate Google Custom Search API calls. A `companyCache` collection keyed by a normalised company slug avoids re-querying, saving both Google API quota and latency.
 
 ### Why DOCX as the only download format?
-DOCX is the only format offered for download so users can open and edit the document before submitting. PDF is still generated and stored in Firebase Storage (used internally), but not exposed in the UI.
+DOCX is the only format generated, stored, and offered for download so users can open and edit the document before submitting. PDF generation was removed — it caused Cloud Function timeout errors and isn't needed since DOCX opens in Word, Google Docs, and most email clients.
 
 ### Why Firestore security rules for privacy (not just app logic)?
 App-level checks can be bypassed. Firestore rules are enforced at the database layer — no code path, API call, or admin console access can read a user's private data unless the authenticated UID matches. This is the only way to guarantee the privacy requirement.
