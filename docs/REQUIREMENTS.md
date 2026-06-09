@@ -130,7 +130,8 @@ As a job seeker, I want the app to generate a tailored, fully formatted resume a
 8. Both documents **shall** be output as fully formatted documents (not plain text), suitable for professional use and download.
 9. The resume **must** not contain language commonly flagged by AI-detection tools (see Feature 5).
 10. The cover letter **must** not contain language commonly flagged by AI-detection tools (see Feature 5).
-11. The user **shall** see a progress indicator during generation.
+11. The cover letter **shall** end with a closing signature consisting of "Thanks," on one line followed by the user's full name on the next line.
+12. The user **shall** see a progress indicator during generation.
 
 ### Test Plan
 | Step | Expected Result |
@@ -139,6 +140,7 @@ As a job seeker, I want the app to generate a tailored, fully formatted resume a
 | Generation completes | Resume and cover letter displayed or confirmed ready |
 | Inspect resume header | Contains name, email, phone, city/state, 1–2 URLs |
 | Inspect cover letter header | Contains name, contact details, 1–2 URLs, and today's date |
+| Inspect cover letter closing | Ends with "Thanks," then user's full name on the next line |
 | Count pages on generated resume | 1 or 2 pages; if 2, second page is at least half full |
 | Count pages on generated cover letter | 1 or 2 pages; if 2, second page is at least half full |
 | Compare resume language to JD keywords | Key skills and role-specific language present |

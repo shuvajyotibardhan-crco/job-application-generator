@@ -247,6 +247,7 @@ Runs the full generation pipeline for one job application.
    Build resume.docx and cover-letter.docx from structured JSON.
    Apply: standard margins, 11pt font, section headings, bullet points.
    Cover letter header includes: name, email, phone, city/state, 1–2 URLs, generation date.
+   Cover letter closing: "Thanks," on one line, then user's full name on the next line.
    Enforce page layout: assert rendered page count ≤ 2.
 
 7. UPLOAD TO STORAGE
