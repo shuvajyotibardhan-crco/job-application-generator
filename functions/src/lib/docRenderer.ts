@@ -190,6 +190,16 @@ export const renderCoverLetter = async (
     }));
   }
 
+  // Signature
+  children.push(new Paragraph({
+    spacing: { before: 160, after: 0 },
+    children: [new TextRun({ text: 'Thanks,', size: BODY_SIZE, font: FONT })],
+  }));
+  children.push(new Paragraph({
+    spacing: { before: 320, after: 0 },
+    children: [new TextRun({ text: personal.fullName, size: BODY_SIZE, font: FONT })],
+  }));
+
   const doc = new Document({
     sections: [{
       properties: {
