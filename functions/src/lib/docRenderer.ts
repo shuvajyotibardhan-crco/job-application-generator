@@ -71,24 +71,26 @@ const bulletParagraph = (text: string): Paragraph =>
     children: [new TextRun({ text, size: BODY_SIZE, font: FONT })],
   });
 
-const locationLine = (location: string): Paragraph =>
-  new Paragraph({
-    spacing: { before: 0, after: 20 },
-    children: [new TextRun({ text: location, size: BODY_SIZE, font: FONT })],
-  });
-
-const titleRow = (title: string, subtitle: string, period: string): Paragraph => {
-  const tabStop = 8640; // right-align period ~6 inches
+const locationLine = (location: string, period: string): Paragraph => {
+  const tabStop = 8640;
   return new Paragraph({
     tabStops: [{ type: TabStopType.RIGHT, position: tabStop }],
-    spacing: { before: 80, after: 20 },
+    spacing: { before: 0, after: 20 },
     children: [
-      new TextRun({ text: title, bold: true, size: BODY_SIZE, font: FONT }),
-      subtitle ? new TextRun({ text: `  —  ${subtitle}`, size: BODY_SIZE, font: FONT }) : new TextRun(''),
+      new TextRun({ text: location, size: BODY_SIZE, font: FONT }),
       period ? new TextRun({ text: `\t${period}`, size: BODY_SIZE, font: FONT, italics: true }) : new TextRun(''),
     ],
   });
 };
+
+const titleRow = (title: string, subtitle: string): Paragraph =>
+  new Paragraph({
+    spacing: { before: 80, after: 0 },
+    children: [
+      new TextRun({ text: title, bold: true, size: BODY_SIZE, font: FONT }),
+      subtitle ? new TextRun({ text: `  —  ${subtitle}`, size: BODY_SIZE, font: FONT }) : new TextRun(''),
+    ],
+  });
 
 export const renderResume = async (
   sections: ResumeSection[],
@@ -119,11 +121,11 @@ export const renderResume = async (
   for (const section of sections) {
     children.push(sectionHeading(section.heading));
     for (const item of section.items) {
-      if (item.title || item.subtitle || item.period) {
-        children.push(titleRow(item.title ?? '', item.subtitle ?? '', item.period ?? ''));
+      if (item.title || item.subtitle) {
+        children.push(titleRow(item.title ?? '', item.subtitle ?? ''));
       }
-      if (item.location) {
-        children.push(locationLine(item.location));
+      if (item.location || item.period) {
+        children.push(locationLine(item.location ?? '', item.period ?? ''));
       }
       if (item.text) {
         children.push(new Paragraph({
