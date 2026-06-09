@@ -86,6 +86,7 @@ users/                              (collection)
   {uid}/                            (document — minimal, auth metadata only)
     private/                        (subcollection)
       profile                       (document — UserProfile)
+      generationProgress            (document — { stage: string } written by Cloud Function during generation; deleted on completion)
     applications/                   (subcollection)
       {appId}                       (document — Application)
 
@@ -215,6 +216,9 @@ Runs the full generation pipeline for one job application.
    If missing or cachedAt > 7 days ago:
      → Call Google Custom Search for company profile + role info.
      → Write result to companyCache/{slug} with cachedAt = now.
+
+   Progress doc written at each step below (users/{uid}/private/generationProgress).
+   Client subscribes via onSnapshot and displays the current stage message.
 
 4. GENERATE RESUME + COVER LETTER (Claude claude-sonnet-4-6)
    System prompt (cached prefix):
