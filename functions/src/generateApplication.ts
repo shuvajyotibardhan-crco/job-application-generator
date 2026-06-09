@@ -38,8 +38,10 @@ export const generateApplication = functions
 
     const db      = admin.firestore();
     const bucket  = admin.storage().bucket();
+    const progress = (stage: string) => setProgress(db, uid, stage);
 
     // 2. Load user profile + base resume text
+    await progress('Reading your profile and resume…');
     functions.logger.info('generateApplication: loading profile', { uid });
     const profileSnap = await db.collection('users').doc(uid).collection('private').doc('profile').get();
     if (!profileSnap.exists) {
@@ -59,12 +61,14 @@ export const generateApplication = functions
     }
 
     // 3. Load / refresh company cache
+    await progress('Researching the company and role…');
     const { companyProfile, roleInfo } = await loadCompanyData(db, companySlug, companyName, roleTitle);
 
     // 4. Generate resume + cover letter
     const generationDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     const selectedUrls   = selectUrls(profile.profileUrls ?? [], 2);
 
+    await progress('Writing your tailored resume and cover letter…');
     functions.logger.info('generateApplication: calling Claude');
     let rawOutput: string;
     try {
@@ -93,6 +97,7 @@ export const generateApplication = functions
     let aiDetectionWarning = false;
 
     for (let i = 0; i < 3; i++) {
+      await progress(i === 0 ? 'Checking for AI patterns…' : 'Refining language…');
       const resumeText = sectionsToText(parsed.resume.sections);
       const clResult   = await checkAiDetection(resumeText, parsed.coverLetter.body);
       if (clResult.clean) break;
@@ -116,10 +121,12 @@ export const generateApplication = functions
     };
 
     // 6. Render DOCX
+    await progress('Formatting your documents…');
     const resumeDocx      = await renderResume(parsed.resume.sections, personalDetails);
     const coverLetterDocx = await renderCoverLetter(parsed.coverLetter.body, personalDetails, generationDate, parsed.coverLetter.header);
 
     // 7. Upload to Storage
+    await progress('Saving your application…');
     const appRef = db.collection('users').doc(uid).collection('applications').doc();
     const appId  = appRef.id;
     const basePath = `users/${uid}/applications/${appId}`;
@@ -146,11 +153,25 @@ export const generateApplication = functions
       updatedAt: admin.firestore.Timestamp.now(),
     });
 
-    // 10. Return appId
+    await clearProgress(db, uid);
     return { appId };
   });
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
+
+async function setProgress(db: admin.firestore.Firestore, uid: string, stage: string): Promise<void> {
+  try {
+    await db.collection('users').doc(uid).collection('private').doc('generationProgress').set({ stage });
+  } catch {
+    // Best-effort — don't fail generation if progress write fails
+  }
+}
+
+async function clearProgress(db: admin.firestore.Firestore, uid: string): Promise<void> {
+  try {
+    await db.collection('users').doc(uid).collection('private').doc('generationProgress').delete();
+  } catch { /* ignore */ }
+}
 
 async function extractResumeText(
   bucket: Bucket,

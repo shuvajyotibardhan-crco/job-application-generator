@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { onSnapshot, doc } from 'firebase/firestore';
 import { resolveCompany, generateApplication } from '../services/applications';
+import { db, auth } from '../firebase';
 
 type Step = 'form' | 'disambiguate' | 'generating';
 
@@ -18,9 +20,10 @@ export default function NewApplication() {
   const [roleTitle, setRoleTitle]     = useState('');
   const [jd, setJd]                   = useState('');
   const [error, setError]             = useState('');
-  const [resolving, setResolving]     = useState(false);
-  const [extracting, setExtracting]   = useState(false);
-  const fileInputRef                  = useRef<HTMLInputElement>(null);
+  const [resolving, setResolving]         = useState(false);
+  const [extracting, setExtracting]       = useState(false);
+  const [progressMessage, setProgressMsg] = useState('');
+  const fileInputRef                      = useRef<HTMLInputElement>(null);
 
   // Disambiguation
   const [options, setOptions]         = useState<CompanyOption[]>([]);
@@ -101,7 +104,18 @@ export default function NewApplication() {
 
   const startGeneration = async (name: string, slug: string) => {
     setStep('generating');
+    setProgressMsg('');
     setError('');
+
+    const uid = auth.currentUser?.uid;
+    let unsubscribe: (() => void) | null = null;
+    if (uid) {
+      const progressRef = doc(db, 'users', uid, 'private', 'generationProgress');
+      unsubscribe = onSnapshot(progressRef, snap => {
+        if (snap.exists()) setProgressMsg(snap.data()?.stage ?? '');
+      });
+    }
+
     try {
       const result = await generateApplication({ companySlug: slug, companyName: name, roleTitle: roleTitle.trim(), jobDescription: jd.trim() });
       const { appId } = result.data as { appId: string };
@@ -109,17 +123,21 @@ export default function NewApplication() {
     } catch (err) {
       setError(errorMessage(err));
       setStep('form');
+    } finally {
+      unsubscribe?.();
     }
   };
 
   if (step === 'generating') {
     return (
       <div className="max-w-xl mx-auto px-4 py-16 text-center">
-        <div className="inline-flex items-center gap-3 text-gray-600">
-          <Spinner />
-          <span className="text-sm">Generating your tailored resume and cover letter…</span>
+        <div className="flex justify-center mb-6">
+          <Spinner large />
         </div>
-        <p className="text-xs text-gray-400 mt-4">This takes about 30–60 seconds. Please don't close this tab.</p>
+        <p className="text-base font-medium text-gray-800 min-h-[1.5rem] transition-all duration-300">
+          {progressMessage || 'Starting…'}
+        </p>
+        <p className="text-xs text-gray-400 mt-3">This takes about 30–60 seconds. Don't close this tab.</p>
       </div>
     );
   }
@@ -246,9 +264,10 @@ function UploadIcon() {
   );
 }
 
-function Spinner() {
+function Spinner({ large }: { large?: boolean }) {
+  const size = large ? 'h-10 w-10 text-indigo-600' : 'h-4 w-4 text-current';
   return (
-    <svg className="animate-spin h-4 w-4 text-current" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+    <svg className={`animate-spin ${size}`} fill="none" viewBox="0 0 24 24" aria-hidden="true">
       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
     </svg>
