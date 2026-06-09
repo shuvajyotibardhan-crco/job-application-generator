@@ -339,6 +339,30 @@ Returns the raw bytes of a generated application file, routed through a Cloud Fu
 
 ---
 
+### `extractImageText`
+
+Extracts plain text from a PNG or JPG image using Claude Vision. Used for JD uploads on the New Application page.
+
+**Request:**
+```typescript
+{ imageBase64: string; mediaType: 'image/png' | 'image/jpeg' }
+```
+
+**Response:**
+```typescript
+{ text: string }
+```
+
+**Logic:**
+```
+1. Verify request.auth.uid.
+2. Decode imageBase64 to a Buffer.
+3. Call extractTextFromImage(buffer, mediaType) — sends image to Claude Haiku via Vision API.
+4. Return { text }.
+```
+
+---
+
 ## Algorithms
 
 ### Company Slug Normalisation
@@ -447,11 +471,12 @@ All secrets stored in `.env` (gitignored). See `.env.example` for variable names
 │   ├── package.json                  # Functions dependencies (docx, anthropic, google-search, pdf-parse, mammoth)
 │   ├── .env.example                  # Functions secret variable names
 │   └── src/
-│       ├── index.ts                  # Exports all callable functions
+│       ├── index.ts                  # Exports all callable functions (resolveCompany, generateApplication, deleteApplication, downloadFile, extractImageText)
 │       ├── generateApplication.ts
 │       ├── resolveCompany.ts
 │       ├── deleteApplication.ts
 │       ├── downloadFile.ts           # Proxies Storage file bytes to client (avoids CORS)
+│       ├── extractImageText.ts       # Claude Vision OCR for PNG/JPG JD uploads
 │       └── lib/
 │           ├── claudeClient.ts       # Anthropic SDK wrapper with prompt caching
 │           ├── searchClient.ts       # Google Custom Search wrapper
