@@ -101,6 +101,7 @@ Output this exact JSON structure:
             "title": "optional string — job title or degree",
             "subtitle": "optional string — company or institution",
             "period": "optional string — e.g. Jan 2020 – Present",
+            "location": "optional string — city and state/country e.g. Littleton, CO",
             "bullets": ["optional array of bullet point strings"],
             "text": "optional plain text string — for summary or skills sections"
           }

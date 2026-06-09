@@ -7,6 +7,7 @@ export interface ResumeBulletItem {
   title?: string;
   subtitle?: string;
   period?: string;
+  location?: string;
   bullets?: string[];
   text?: string;
 }
@@ -70,6 +71,12 @@ const bulletParagraph = (text: string): Paragraph =>
     children: [new TextRun({ text, size: BODY_SIZE, font: FONT })],
   });
 
+const locationLine = (location: string): Paragraph =>
+  new Paragraph({
+    spacing: { before: 0, after: 20 },
+    children: [new TextRun({ text: location, size: BODY_SIZE, font: FONT })],
+  });
+
 const titleRow = (title: string, subtitle: string, period: string): Paragraph => {
   const tabStop = 8640; // right-align period ~6 inches
   return new Paragraph({
@@ -114,6 +121,9 @@ export const renderResume = async (
     for (const item of section.items) {
       if (item.title || item.subtitle || item.period) {
         children.push(titleRow(item.title ?? '', item.subtitle ?? '', item.period ?? ''));
+      }
+      if (item.location) {
+        children.push(locationLine(item.location));
       }
       if (item.text) {
         children.push(new Paragraph({
