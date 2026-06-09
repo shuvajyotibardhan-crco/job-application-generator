@@ -157,11 +157,13 @@ As a job seeker, I want the generated documents to read as naturally human-writt
 
 ### Acceptance Criteria
 1. After generation, a dedicated sub-agent **shall** analyse both the resume and the cover letter for language patterns commonly flagged by AI-detection tools.
-2. Any section flagged **shall** be rewritten by the sub-agent to use varied, natural, human-idiomatic language.
-3. The check-and-rewrite loop **shall** repeat until neither document contains flagged language or a maximum of 3 iterations is reached.
-4. If after 3 iterations a document still contains flagged content, the app **must** notify the user and present the best available version rather than blocking the flow.
-5. Words and phrases commonly overused by AI systems (e.g. "leverage", "utilise", "spearhead", "deliverables", "synergy", "cutting-edge", "passionate about") **must** be avoided in the final output.
-6. The check **must** run before documents are stored or presented to the user.
+2. The sub-agent **shall** check for all of the following failure criteria: (a) presence of any banned word or phrase from the human-writing-style ruleset; (b) banned transitional signposts (e.g. "Furthermore", "Moreover", "Additionally", "In conclusion"); (c) hedging phrases (e.g. "Aims to", "Seeks to", "It could be argued"); (d) passive voice constructions; (e) three or more consecutive sentences all over 20 words; (f) two or more consecutive bullet points starting with the same word or grammatical structure; (g) sentences that merely rephrase the sentence immediately before them; (h) vague abstractions in place of named specifics.
+3. Any section flagged under criterion 2 **shall** be rewritten to fix the specific violation — replacing banned words with plain-English alternatives, breaking long sentences, restructuring repetitive bullets, and eliminating passive constructions.
+4. The check-and-rewrite loop **shall** repeat until neither document triggers any criterion or a maximum of 3 iterations is reached.
+5. If after 3 iterations a document still contains flagged content, the app **must** notify the user and present the best available version rather than blocking the flow.
+6. The following words and phrases **must** not appear in any final output: Leverage, Utilize/Utilise, Seamlessly, Robust, Streamline, Cutting-edge, State-of-the-art, Comprehensive solution, Paradigm shift, Game-changer, Empower, Revolutionize/Revolutionise, Transformative, Spearhead, Deliverables, Synergy, Dynamic, Innovative, Passionate about, Furthermore, Moreover, Additionally, In conclusion, Consequently, Therefore, It is worth noting, It is important to note, This ensures that, As previously mentioned, Aims to, Seeks to, Endeavors to/Endeavours to.
+7. All prose **must** use active voice, natural contractions, varied sentence lengths (mixing short 5–10 word sentences with medium 11–20 word sentences), and paragraph breaks of no more than 3–4 sentences.
+8. The check **must** run before documents are stored or presented to the user.
 
 ### Test Plan
 | Step | Expected Result |

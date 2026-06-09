@@ -218,9 +218,17 @@ Runs the full generation pipeline for one job application.
 
 4. GENERATE RESUME + COVER LETTER (Claude claude-sonnet-4-6)
    System prompt (cached prefix):
-     - Role: expert resume writer and career coach
-     - Rules: 2 pages max (600–700 word budget; max 4 bullets/role; max 4 roles; cover letter 3 paragraphs ≤80 words each), second page ≥ half full, no AI-detector phrases,
-              use varied human language, tailor to JD keywords
+     - Role: senior resume writer and career strategist
+     - Document rules: 2 pages max (600–700 word budget; max 4 bullets/role; max 4 roles; cover letter 3 paragraphs ≤80 words each), second page ≥ half full, tailor to JD keywords
+     - Human-writing-style rules (full ruleset injected via HUMAN_WRITING_RULES constant):
+         • Sentence length variance: mix 5–10 word and 11–20 word sentences; never 3+ consecutive >20-word sentences
+         • Paragraphs max 3–4 sentences; single-sentence paragraphs permitted for emphasis
+         • Active voice only
+         • Natural contractions throughout
+         • No consecutive bullets starting with the same word/structure
+         • No sentence that merely rephrases the one before it
+         • Named specifics, not vague abstractions
+         • Full banned-word list enforced (see Feature 5 AC 6)
    User message:
      - Base resume text
      - JD text
@@ -241,9 +249,15 @@ Runs the full generation pipeline for one job application.
      — location: city, state rendered on a separate line below the title row
 
 5. AI-DETECTION CHECK (Claude claude-haiku-4-5, up to 3 iterations)
-   Prompt: analyse resume and cover letter text for AI-detector patterns.
+   Detection prompt checks 8 criteria:
+     (a) banned words/phrases present  (b) banned transitional signposts
+     (c) hedging phrases               (d) passive voice constructions
+     (e) 3+ consecutive sentences >20 words  (f) 2+ consecutive bullets with same opening
+     (g) sentence immediately rephrasing the one before it  (h) vague abstractions
+   Returns: { clean: boolean, flaggedSections: string[] }
    If flagged sections found:
-     → Rewrite flagged sections with human-idiomatic alternatives.
+     → Rewrite prompt instructs Sonnet to fix each specific violation (replace banned words,
+        break long sentences, restructure bullets, eliminate passive) while preserving all facts.
      → Increment iteration counter.
      → Repeat from step 5 until clean or counter == 3.
    If still flagged after 3 iterations:
