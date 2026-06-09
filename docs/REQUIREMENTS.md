@@ -96,7 +96,8 @@ As a job seeker, I want to provide a job description, company name, and role tit
 
 ### Acceptance Criteria
 1. The dashboard **shall** include a prominently placed "New Application" button.
-2. The new application form **shall** require: job description (paste or file upload — .txt, .pdf, .docx, .png, .jpg), company name, and role title. PNG/JPG uploads are sent to a Cloud Function for text extraction via Claude Vision.
+2. The new application form **shall** require: job description (paste or multiple file upload — any file type accepted; .txt/.pdf/.docx extracted client-side, .png/.jpg sent to Claude Vision via Cloud Function, all other types attempted as plain text), company name, and role title.
+2a. The JD file input **shall** accept multiple files simultaneously — all files are processed in parallel and their extracted text is concatenated. This supports mobile workflows where apps like LinkedIn don't allow text copy, requiring the user to take multiple screenshots of the job posting.
 3. The job description **shall** be the primary source of data for generation.
 4. The app **shall** use the company name and role title to research public company information and the public description of that role at that company as secondary sources.
 5. If the company name matches multiple distinct companies, the app **shall** present a disambiguation list for the user to select the correct one before proceeding.

@@ -341,7 +341,7 @@ Returns the raw bytes of a generated application file, routed through a Cloud Fu
 
 ### `extractImageText`
 
-Extracts plain text from a PNG or JPG image using Claude Vision. Used for JD uploads on the New Application page.
+Extracts plain text from a PNG or JPG image using Claude Vision. Used for JD uploads on the New Application page — including multi-screenshot workflows from mobile where apps like LinkedIn don't allow text copy.
 
 **Request:**
 ```typescript
