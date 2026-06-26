@@ -26,7 +26,7 @@ Renders the authentication screen. Handles Google OAuth popup and email/password
 First-time setup and ongoing profile management. Handles base resume file upload (PDF, DOCX, PNG, JPG) and Google Docs URL input, personal details form, and URL list management. PNG/JPG uploads are sent to Claude Vision (Haiku) server-side for text extraction. Calls `src/services/profile.ts` for Firestore writes and `src/services/storage.ts` for file uploads.
 
 ### `src/pages/Dashboard.tsx`
-Default authenticated landing page. Reads the user's application list from Firestore (reverse-chron), renders each as a row with status badge, and provides the "New Application" entry point. Empty-state handled inline.
+Default authenticated landing page. Reads the user's application list from Firestore (reverse-chron) and the user's saved filter preferences in parallel on mount. Renders a toggleable filter panel with per-column filters (Company text, Role text, Date from/to, Status multi-select chips); filtering runs client-side. Filter state is debounce-saved to Firestore via `preferences.ts` so it survives logout. Shows filtered row count vs. total in the header, a "Clear all filters" action when active, and a filtered-empty state when no rows match.
 
 ### `src/pages/NewApplication.tsx`
 Multi-step form: (1) JD input (paste or multi-file upload — no type restriction; .txt/.pdf/.docx extracted client-side, .png/.jpg sent to `extractImageText` Cloud Function for Claude Vision OCR, all other types attempted as plain text; files processed in parallel and concatenated — designed to support mobile screenshot workflows where apps like LinkedIn don't allow text copy) + company name + role title, (2) optional company disambiguation step, (3) live progress screen while the Cloud Function runs — subscribes to `users/{uid}/private/generationProgress` via `onSnapshot` and displays each pipeline stage message as the function writes it. On submit, calls the `generateApplication` Cloud Function.
@@ -45,6 +45,9 @@ Firebase Storage helpers: upload base resume to `users/{uid}/resume/base.*`, dow
 
 ### `src/services/applications.ts`
 Firestore CRUD for application records (`users/{uid}/applications/{appId}`). Handles list queries (ordered by date desc), status updates, and delete (calls delete Cloud Function).
+
+### `src/services/preferences.ts`
+Reads and writes the `DashboardFilters` document at `users/{uid}/preferences/dashboard`. `getDashboardFilters` returns saved filters (or safe defaults on missing/error). `saveDashboardFilters` merges the new state; failures are silently swallowed so a Firestore error never breaks the UI.
 
 ### `functions/src/generateApplication.ts` (Cloud Function — callable)
 Main generation pipeline:

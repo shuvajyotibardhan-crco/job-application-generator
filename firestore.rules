@@ -16,6 +16,11 @@ service cloud.firestore {
                     && isValidStatusTransition(resource.data.status, request.resource.data.status);
     }
 
+    // User preferences (e.g. dashboard filters) — owning user only
+    match /users/{uid}/preferences/{doc} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
     // Company cache — any authenticated user may read; only Cloud Functions SA writes
     match /companyCache/{slug} {
       allow read: if request.auth != null;

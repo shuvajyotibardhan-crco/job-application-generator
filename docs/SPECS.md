@@ -48,6 +48,19 @@ interface Application {
 }
 ```
 
+### DashboardFilters
+Stored at: `users/{uid}/preferences/dashboard`
+
+```typescript
+interface DashboardFilters {
+  company: string;                    // Partial text match against companyName (case-insensitive)
+  role: string;                       // Partial text match against roleTitle (case-insensitive)
+  dateFrom: string;                   // ISO date string 'YYYY-MM-DD', or '' for no lower bound
+  dateTo: string;                     // ISO date string 'YYYY-MM-DD', or '' for no upper bound
+  statuses: ApplicationStatus[];      // Empty = show all; non-empty = show only listed statuses
+}
+```
+
 ### CompanyCache
 Stored at: `companyCache/{slug}`
 
@@ -115,6 +128,11 @@ service cloud.firestore {
       allow update: if request.auth != null
                     && request.auth.uid == uid
                     && isValidStatusTransition(resource.data.status, request.resource.data.status);
+    }
+
+    // User preferences (dashboard filters, etc.) — owning user only
+    match /users/{uid}/preferences/{doc} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
     }
 
     // Company cache — any authenticated user may read; only Functions SA may write
@@ -465,7 +483,8 @@ All secrets stored in `.env` (gitignored). See `.env.example` for variable names
 │       ├── auth.ts
 │       ├── profile.ts
 │       ├── storage.ts
-│       └── applications.ts
+│       ├── applications.ts
+│       └── preferences.ts            # DashboardFilters read/write to users/{uid}/preferences/dashboard
 │
 ├── functions/
 │   ├── package.json                  # Functions dependencies (docx, anthropic, google-search, pdf-parse, mammoth)

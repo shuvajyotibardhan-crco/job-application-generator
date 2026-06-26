@@ -209,6 +209,11 @@ As a job seeker, I want a dashboard showing all my job applications so that I ca
 4. Each application row **shall** be clickable and **shall** navigate to the detail view for that application.
 5. Status **shall** be displayed as a visual chip or badge with distinct styling per status value.
 6. The dashboard **shall** display an empty state message when no applications exist.
+7. The dashboard **shall** provide a filter panel (toggled via a Filters button) with per-column filters: Company (text search), Role (text search), Date from (date), Date to (date), and Status (multi-select toggle chips).
+8. Filters **shall** apply client-side to the fetched application list; the row count shown in the header **shall** reflect the filtered count versus total.
+9. A "Clear all filters" action **shall** be available when at least one filter is active and **shall** reset all filters to their empty defaults.
+10. Filter state **shall** be persisted to Firestore (`users/{uid}/preferences/dashboard`) so that a user's filter combination is automatically restored on next login.
+11. The Filters button **shall** display a badge indicating how many filter groups are active when filters are set.
 
 ### Test Plan
 | Step | Expected Result |
@@ -217,6 +222,12 @@ As a job seeker, I want a dashboard showing all my job applications so that I ca
 | Inspect each row | Company, role, date, status badge all visible |
 | Log in with no applications | Empty state message shown |
 | Click an application row | Navigates to detail view |
+| Open filter panel, type a partial company name | Table narrows to matching rows; header count updates |
+| Set a status filter chip | Only applications with that status shown |
+| Set a date range | Only applications within the range shown |
+| Set filters, log out, log back in | Same filter combination is restored automatically |
+| Click "Clear all filters" | All filters reset; full list restored |
+| All filters active, no matches | "No applications match the current filters" empty state shown with clear link |
 
 ---
 
